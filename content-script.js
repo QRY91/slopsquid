@@ -4,7 +4,7 @@ console.log('🦑 SlopSquid loaded!');
 class SlopSquidDetector {
   constructor() {
     this.isEnabled = true;
-    this.sensitivity = 0.7; // 0-1 scale
+    this.sensitivity = 0.6; // 0-1 scale
     this.inkEffects = [];
     this.init();
   }
@@ -13,7 +13,7 @@ class SlopSquidDetector {
     // Load settings from storage
     const settings = await chrome.storage.sync.get(['enabled', 'sensitivity']);
     this.isEnabled = settings.enabled !== false;
-    this.sensitivity = settings.sensitivity || 0.7;
+    this.sensitivity = settings.sensitivity || 0.6;
 
     if (this.isEnabled) {
       this.scanPage();
@@ -42,46 +42,78 @@ class SlopSquidDetector {
   }
 
   detectAIContent(text) {
-    // Simple heuristic-based detection (we'll enhance this)
+    // Enhanced heuristic-based detection
     let suspicionScore = 0;
     
-    // Common AI patterns
+    // Expanded AI phrases from real examples
     const aiPhrases = [
-      'as an ai', 'i apologize', 'i understand', 'furthermore', 'moreover',
-      'in conclusion', 'it\'s worth noting', 'delve into', 'comprehensive',
-      'leverage', 'utilize', 'facilitate', 'subsequently', 'robust',
-      'seamless', 'innovative', 'cutting-edge', 'state-of-the-art'
+      // Classic AI introductions
+      'as an ai', 'i apologize', 'i understand', 'i\'m sorry', 'i cannot',
+      // Formal connectors (very common in AI)
+      'furthermore', 'moreover', 'subsequently', 'therefore', 'however',
+      'nevertheless', 'nonetheless', 'additionally', 'consequently',
+      // Academic/formal language overuse
+      'in conclusion', 'it\'s worth noting', 'it is important to note',
+      'delve into', 'comprehensive', 'robust', 'innovative', 'cutting-edge',
+      'state-of-the-art', 'facilitate', 'utilize', 'leverage', 'seamless',
+      // AI-specific patterns from the test examples
+      'large language model', 'trained on a massive dataset', 'variety of tasks',
+      'human-like responses', 'wide range of prompts', 'diverse set of',
+      'capable of understanding', 'collective effervescence', 'social solidarity',
+      'heightened sense', 'shared emotions', 'sense of unity'
     ];
     
     const sentences = text.split(/[.!?]+/);
     
-    // Check for AI phrases
+    // Check for AI phrases (increased weight)
+    const lowerText = text.toLowerCase();
     aiPhrases.forEach(phrase => {
-      if (text.toLowerCase().includes(phrase)) {
-        suspicionScore += 0.1;
+      if (lowerText.includes(phrase)) {
+        suspicionScore += 0.15; // Increased from 0.1
       }
     });
     
     // Check sentence structure patterns
     let perfectSentences = 0;
+    let longSentences = 0;
     sentences.forEach(sentence => {
       const words = sentence.trim().split(/\s+/);
       // AI tends to write very consistent sentence lengths
       if (words.length >= 15 && words.length <= 25) {
         perfectSentences++;
       }
+      // AI also creates many long, complex sentences
+      if (words.length > 25) {
+        longSentences++;
+      }
     });
     
     if (sentences.length > 0) {
       suspicionScore += (perfectSentences / sentences.length) * 0.3;
+      suspicionScore += (longSentences / sentences.length) * 0.2;
     }
     
-    // Check for overly formal language
-    const formalWords = text.toLowerCase().match(/\b(additionally|furthermore|consequently|therefore|however|nevertheless|nonetheless|subsequently)\b/g);
+    // Check for overly formal language (enhanced)
+    const formalWords = lowerText.match(/\b(additionally|furthermore|consequently|therefore|however|nevertheless|nonetheless|subsequently|moreover|thus|hence|whereby|wherein|thereof|thereby)\b/g);
     if (formalWords) {
-      suspicionScore += Math.min(formalWords.length * 0.05, 0.2);
+      suspicionScore += Math.min(formalWords.length * 0.08, 0.3); // Increased weight
     }
     
+    // Check for AI writing patterns
+    const aiPatterns = [
+      /\b(can be used for|is able to|has been trained|is capable of)\b/gi,
+      /\b(a variety of|wide range of|diverse set of|massive dataset)\b/gi,
+      /\b(language model|text generation|natural language)\b/gi
+    ];
+    
+    aiPatterns.forEach(pattern => {
+      const matches = lowerText.match(pattern);
+      if (matches) {
+        suspicionScore += matches.length * 0.1;
+      }
+    });
+    
+    // Lower the minimum threshold for better detection
     return Math.min(suspicionScore, 1.0);
   }
 

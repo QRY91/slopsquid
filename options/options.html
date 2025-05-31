@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SlopSquid Options</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: linear-gradient(135deg, #ff1493, #8a2be2);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .setting {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin: 10px 0;
+        }
+        input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .status {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦑 SlopSquid Options</h1>
+        
+        <div class="setting">
+            <label for="enabled">
+                <input type="checkbox" id="enabled" checked> Enable SlopSquid Detection
+            </label>
+            <small>Toggle AI content detection on/off</small>
+        </div>
+        
+        <div class="setting">
+            <label for="sensitivity">Detection Sensitivity: <span id="sensitivityValue">70%</span></label>
+            <input type="range" id="sensitivity" min="50" max="95" value="70">
+            <small>Higher values detect more content as AI-generated</small>
+        </div>
+        
+        <div class="setting">
+            <label for="notifications">
+                <input type="checkbox" id="notifications" checked> Show Notifications
+            </label>
+            <small>Display notifications when AI content is detected</small>
+        </div>
+        
+        <div class="setting">
+            <label for="visualEffects">
+                <input type="checkbox" id="visualEffects" checked> Enable Ink Effects
+            </label>
+            <small>Show visual ink effects on detected content</small>
+        </div>
+        
+        <div class="status" id="status">
+            Settings saved automatically
+        </div>
+    </div>
+    
+    <script src="options.js"></script>
+</body>
+</html> 

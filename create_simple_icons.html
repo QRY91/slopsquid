@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SlopSquid Icon Generator</title>
+</head>
+<body>
+    <h2>🦑 SlopSquid Icon Generator</h2>
+    <canvas id="icon" width="128" height="128"></canvas>
+    <br><br>
+    <button onclick="generateIcon(16)">16x16</button>
+    <button onclick="generateIcon(32)">32x32</button>
+    <button onclick="generateIcon(48)">48x48</button>
+    <button onclick="generateIcon(128)">128x128</button>
+    <br><br>
+    <a id="download" download="icon.png">Download Icon</a>
+
+    <script>
+        function generateIcon(size) {
+            const canvas = document.getElementById('icon');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            const center = size / 2;
+            
+            // Background ink splash
+            if (size >= 32) {
+                const gradient = ctx.createRadialGradient(center, center, 0, center, center, size/2);
+                gradient.addColorStop(0, 'rgba(255, 0, 100, 0.3)');
+                gradient.addColorStop(0.7, 'rgba(138, 43, 226, 0.2)');
+                gradient.addColorStop(1, 'rgba(75, 0, 130, 0.1)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, size, size);
+            }
+            
+            // Squid body
+            const bodyGradient = ctx.createLinearGradient(0, 0, size, size);
+            bodyGradient.addColorStop(0, '#ff1493');  // hot pink
+            bodyGradient.addColorStop(0.5, '#ff0064'); // crimson
+            bodyGradient.addColorStop(1, '#8a2be2');   // purple
+            
+            ctx.fillStyle = bodyGradient;
+            
+            // Head
+            ctx.beginPath();
+            ctx.arc(center, center * 0.6, size * 0.12, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(center, center * 0.9, size * 0.08, size * 0.15, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Eyes (only for larger icons)
+            if (size >= 32) {
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(center - size * 0.04, center * 0.55, size * 0.03, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(center + size * 0.04, center * 0.55, size * 0.03, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Pupils
+                ctx.fillStyle = '#2d1b69';
+                ctx.beginPath();
+                ctx.arc(center - size * 0.04, center * 0.55, size * 0.015, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(center + size * 0.04, center * 0.55, size * 0.015, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            
+            // Tentacles
+            ctx.strokeStyle = bodyGradient;
+            ctx.lineWidth = Math.max(1, size / 32);
+            ctx.lineCap = 'round';
+            
+            for (let i = 0; i < 6; i++) {
+                const x = center + (i - 2.5) * (size / 12);
+                ctx.beginPath();
+                ctx.moveTo(x, center + size * 0.05);
+                ctx.lineTo(x, center + size * 0.3);
+                ctx.stroke();
+            }
+            
+            // Update download link
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.getElementById('download');
+            link.href = dataURL;
+            link.download = `icon${size}.png`;
+            link.textContent = `Download ${size}x${size} Icon`;
+        }
+        
+        // Generate initial 128x128 icon
+        generateIcon(128);
+    </script>
+</body>
+</html> 

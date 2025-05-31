@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 320px;
+            padding: 20px;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff1493, #8a2be2);
+            color: white;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .stats {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .buttons {
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .toggle-btn.enabled {
+            background: rgba(0, 255, 100, 0.3);
+        }
+        .toggle-btn.disabled {
+            background: rgba(255, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🦑</div>
+        <h1 class="title">SlopSquid</h1>
+    </div>
+    
+    <div class="stats">
+        <div class="stat">
+            <span>Detected on this page:</span>
+            <span id="detectedCount">0</span>
+        </div>
+        <div class="stat">
+            <span>Status:</span>
+            <span id="status">Active</span>
+        </div>
+    </div>
+    
+    <div class="buttons">
+        <button id="toggleBtn" class="toggle-btn enabled">Disable</button>
+        <button id="optionsBtn">Options</button>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html> 

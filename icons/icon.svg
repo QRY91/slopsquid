@@ -1,0 +1,50 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Hot pink to purple gradient -->
+    <linearGradient id="squidGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff1493;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ff0064;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8a2be2;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Ink splash gradient -->
+    <radialGradient id="inkGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ff0064;stop-opacity:0.8" />
+      <stop offset="70%" style="stop-color:#8a2be2;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#4b0082;stop-opacity:0.1" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background ink splash -->
+  <circle cx="64" cy="64" r="58" fill="url(#inkGradient)" opacity="0.3"/>
+  
+  <!-- Squid body (mantle) -->
+  <ellipse cx="64" cy="50" rx="20" ry="28" fill="url(#squidGradient)"/>
+  
+  <!-- Squid head -->
+  <circle cx="64" cy="32" r="16" fill="url(#squidGradient)"/>
+  
+  <!-- Eyes -->
+  <circle cx="58" cy="28" r="4" fill="white"/>
+  <circle cx="70" cy="28" r="4" fill="white"/>
+  <circle cx="58" cy="28" r="2" fill="#2d1b69"/>
+  <circle cx="70" cy="28" r="2" fill="#2d1b69"/>
+  
+  <!-- Tentacles -->
+  <path d="M 54 70 Q 45 85 42 95 Q 40 105 45 110" stroke="url(#squidGradient)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M 58 72 Q 48 88 46 98 Q 44 108 49 112" stroke="url(#squidGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 62 74 Q 55 90 53 100 Q 51 110 56 114" stroke="url(#squidGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 66 74 Q 73 90 75 100 Q 77 110 72 114" stroke="url(#squidGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 70 72 Q 80 88 82 98 Q 84 108 79 112" stroke="url(#squidGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 74 70 Q 83 85 86 95 Q 88 105 83 110" stroke="url(#squidGradient)" stroke-width="4" fill="none" stroke-linecap="round"/>
+  
+  <!-- Arms (shorter tentacles) -->
+  <path d="M 48 45 Q 35 50 30 58" stroke="url(#squidGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 80 45 Q 93 50 98 58" stroke="url(#squidGradient)" stroke-width="3" fill="none" stroke-linecap="round"/>
+  
+  <!-- Ink spots for effect -->
+  <circle cx="85" cy="85" r="3" fill="#ff0064" opacity="0.6"/>
+  <circle cx="92" cy="78" r="2" fill="#8a2be2" opacity="0.4"/>
+  <circle cx="35" cy="88" r="2.5" fill="#ff1493" opacity="0.5"/>
+  <circle cx="28" cy="82" r="1.5" fill="#4b0082" opacity="0.3"/>
+</svg> 

@@ -1,93 +1,120 @@
 # SlopSquid 🦑
 
-**Detect and visualize AI-generated text with inky effects**
+**Detect AI-generated text with beautiful ink effects**
 
-*"Slap that AI!"* - A browser extension that marks suspicious AI-generated content with beautiful ink-like visual effects.
+*"Slap that AI!"* - A browser extension that identifies suspicious AI-generated content and marks it with stunning visual feedback as you browse the web.
 
-## Features
+> **🚧 Early Development** - Core functionality working, polishing in progress before Chrome Web Store release.
 
-- 🔍 **Real-time AI Detection** - Analyzes text on web pages as you browse
-- 🎨 **Ink Effects** - Beautiful visual feedback with confidence-based styling
-- ⚡ **Lightweight** - Runs locally with no external API calls
+## ✨ Features
+
+- 🔍 **Real-time Detection** - Automatically scans text as pages load
+- 🎨 **Ink Effects** - Beautiful hot pink to purple visual feedback
 - 🎚️ **Adjustable Sensitivity** - Tune detection to your preferences
-- 🔒 **Privacy-First** - No data leaves your browser
+- 🖱️ **One-Click Toggle** - Easy enable/disable from browser toolbar
+- 🔒 **Privacy-First** - All processing happens locally in your browser
+- 🎯 **Context Menu** - Right-click any text for instant analysis
 
-## Detection Capabilities
+## 🎯 Perfect For
 
-SlopSquid uses heuristic analysis to identify common AI writing patterns:
+- **Journalists** - Verify content authenticity
+- **Students** - Identify AI-generated academic content  
+- **Content Creators** - Ensure originality in research
+- **General Users** - Stay informed about AI content online
 
-- **Language Patterns** - Overly formal or repetitive phrasing
-- **Sentence Structure** - Consistent length and complexity patterns
-- **AI Phrases** - Common AI-generated expressions and transitions
-- **Writing Style** - Unnatural formality and corporate speak
+## 🚀 Installation
 
-## Visual Feedback
+### Development Install (Current)
+1. Download or clone this repository
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable "Developer mode" (top right toggle)
+4. Click "Load unpacked" and select the `slopsquid` folder
+5. The SlopSquid 🦑 icon appears in your toolbar!
 
-- 🟢 **Low Confidence** (70-79%) - Subtle pink highlighting
-- 🟡 **Medium Confidence** (80-89%) - Noticeable red tinting
-- 🔴 **High Confidence** (90%+) - Strong ink effect with animation
+### From Chrome Web Store
+*Coming after polish phase...*
 
-## Installation
+## 🎨 How It Works
 
-### Development Setup
+SlopSquid uses enhanced heuristic analysis to identify common AI writing patterns:
 
-1. Clone the repository:
-   ```bash
-   git clone git@github.com:QRY91/slopsquid.git
-   cd slopsquid
-   ```
+- **Language Analysis** - Detects overly formal or repetitive phrasing
+- **Sentence Structure** - Identifies unnaturally consistent patterns
+- **AI Vocabulary** - Recognizes common AI-generated phrases
+- **Writing Style** - Spots corporate-speak and artificial formality
+- **Pattern Matching** - Catches phrases like "large language model", "trained on massive dataset"
 
-2. Load the extension in Chrome:
-   - Open Chrome and go to `chrome://extensions/`
-   - Enable "Developer mode" (top right)
-   - Click "Load unpacked" and select the `slopsquid` directory
+### Visual Feedback
+- 🟢 **Low Confidence** (60-79%) - Subtle pink highlighting
+- 🟡 **Medium Confidence** (80-89%) - Noticeable ink effects  
+- 🔴 **High Confidence** (90%+) - Strong ink animation with tooltip
 
-3. The SlopSquid icon should appear in your browser toolbar!
+## 🛠️ Usage
 
-### Testing
+1. **Automatic Scanning** - Browse normally, SlopSquid works in the background
+2. **Click the Icon** - View detection stats and toggle on/off
+3. **Right-click Text** - Analyze specific selections instantly
+4. **Open Options** - Fine-tune sensitivity and visual preferences
 
-Visit any website with substantial text content and watch SlopSquid mark suspicious AI-generated sections with ink effects.
+## 🌐 Website
 
-## Usage
+Visit [slopsquid.com](https://slopsquid.com) for more information, examples, and updates.
 
-- **Auto-Detection** - SlopSquid automatically scans pages as they load
-- **Manual Toggle** - Click the extension icon to enable/disable
-- **Context Menu** - Right-click selected text for instant analysis
-- **Tooltips** - Hover over marked text to see confidence scores
+## 🔧 Technical Details
 
-## Development
-
-This extension is built with vanilla JavaScript and follows Chrome Extension Manifest V3 standards.
+Built with modern web technologies:
+- **Manifest V3** - Latest Chrome extension standards
+- **Vanilla JavaScript** - Fast and lightweight
+- **CSS Animations** - Smooth ink effects
+- **Local Processing** - No external API dependencies
 
 ### File Structure
 ```
 slopsquid/
 ├── manifest.json         # Extension configuration
-├── content-script.js     # Main detection logic
+├── content-script.js     # Main detection engine
 ├── background.js         # Service worker
 ├── styles.css           # Ink effect animations
 ├── popup/               # Extension popup UI
 ├── options/             # Settings page
-└── icons/              # Extension icons
+├── icons/              # Crispy pixel art icons
+└── index.html          # Landing page
 ```
 
-### Future Enhancements
+## 🎮 Development Status
 
-- [ ] Machine learning-based detection
-- [ ] WebGL shader effects for advanced ink animations
-- [ ] User training system for personalized detection
-- [ ] Integration with external AI detection APIs
-- [ ] Site-specific whitelisting/blacklisting
-- [ ] Export detected content for analysis
+**✅ Completed:**
+- Core AI detection algorithm
+- Visual ink effects system
+- Chrome extension structure  
+- Landing page with ocean/pink theme
+- Options and popup interfaces
 
-## Contributing
+**🔧 Polish Phase (Next):**
+- Sensitivity fine-tuning
+- Visual effect refinements
+- Custom theming system
+- Enhanced detection patterns
+- Performance optimizations
 
-Part of the [QRY Tool Ecosystem](https://github.com/QRY91) - building privacy-first developer tools.
+**🚀 Future Enhancements:**
+- Machine learning integration
+- WebGL shader effects
+- User training system
+- Chrome Web Store release
 
-## License
+## 🎮 Inspiration
+
+Inspired by Splatoon's ink mechanics and the growing need to identify AI-generated content in our daily browsing experience.
+
+## 🤝 Contributing
+
+Part of the [QRY Tool Ecosystem](https://github.com/QRY91) - building privacy-first tools for the modern web.
+
+## 📄 License
 
 MIT License - see LICENSE file for details
 
 ---
 
-*Inspired by Splatoon's ink mechanics and the need to identify AI-generated content in our daily browsing.* 
+*Made with 🦑 and a commitment to transparency in the age of AI* 
