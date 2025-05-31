@@ -1,0 +1,123 @@
+/* SlopSquid Ink Effects 🦑 */
+
+@keyframes ink-pulse {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.3; }
+}
+
+@keyframes ink-spread {
+  0% { 
+    box-shadow: inset 0 0 0 rgba(255, 0, 100, 0.3);
+  }
+  100% { 
+    box-shadow: inset 0 0 20px rgba(255, 0, 100, 0.6);
+  }
+}
+
+/* Base marking styles */
+.slopsquid-marked {
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: help;
+}
+
+.slopsquid-marked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  border-radius: 3px;
+  z-index: -1;
+}
+
+/* Low confidence - subtle pink tint */
+.slopsquid-low {
+  background: linear-gradient(90deg, 
+    rgba(255, 182, 193, 0.1) 0%, 
+    rgba(255, 192, 203, 0.15) 50%, 
+    rgba(255, 182, 193, 0.1) 100%);
+  border-left: 2px solid rgba(255, 105, 180, 0.3);
+}
+
+.slopsquid-low::before {
+  background: radial-gradient(circle at 20% 80%, 
+    rgba(255, 105, 180, 0.1) 0%, 
+    transparent 50%);
+  animation: ink-pulse 3s infinite ease-in-out;
+}
+
+/* Medium confidence - noticeable pink/red */
+.slopsquid-medium {
+  background: linear-gradient(90deg, 
+    rgba(255, 99, 132, 0.15) 0%, 
+    rgba(255, 51, 102, 0.25) 50%, 
+    rgba(255, 99, 132, 0.15) 100%);
+  border-left: 3px solid rgba(255, 51, 102, 0.5);
+}
+
+.slopsquid-medium::before {
+  background: radial-gradient(ellipse at 30% 70%, 
+    rgba(255, 51, 102, 0.2) 0%, 
+    rgba(220, 20, 60, 0.1) 40%,
+    transparent 70%);
+  animation: ink-pulse 2s infinite ease-in-out;
+}
+
+/* High confidence - strong red ink effect */
+.slopsquid-high {
+  background: linear-gradient(90deg, 
+    rgba(220, 20, 60, 0.2) 0%, 
+    rgba(255, 0, 100, 0.35) 50%, 
+    rgba(220, 20, 60, 0.2) 100%);
+  border-left: 4px solid rgba(255, 0, 100, 0.7);
+}
+
+.slopsquid-high::before {
+  background: radial-gradient(ellipse at 40% 60%, 
+    rgba(255, 0, 100, 0.3) 0%, 
+    rgba(139, 0, 69, 0.2) 30%,
+    rgba(220, 20, 60, 0.1) 60%,
+    transparent 80%);
+  animation: ink-spread 1.5s infinite alternate ease-in-out;
+}
+
+/* Hover effects */
+.slopsquid-marked:hover {
+  transform: translateY(-1px);
+}
+
+.slopsquid-low:hover {
+  background: linear-gradient(90deg, 
+    rgba(255, 182, 193, 0.2) 0%, 
+    rgba(255, 192, 203, 0.3) 50%, 
+    rgba(255, 182, 193, 0.2) 100%);
+}
+
+.slopsquid-medium:hover {
+  background: linear-gradient(90deg, 
+    rgba(255, 99, 132, 0.25) 0%, 
+    rgba(255, 51, 102, 0.4) 50%, 
+    rgba(255, 99, 132, 0.25) 100%);
+}
+
+.slopsquid-high:hover {
+  background: linear-gradient(90deg, 
+    rgba(220, 20, 60, 0.3) 0%, 
+    rgba(255, 0, 100, 0.5) 50%, 
+    rgba(220, 20, 60, 0.3) 100%);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .slopsquid-marked {
+    margin: 2px 0;
+  }
+  
+  .slopsquid-low { border-left-width: 1px; }
+  .slopsquid-medium { border-left-width: 2px; }
+  .slopsquid-high { border-left-width: 3px; }
+} 
