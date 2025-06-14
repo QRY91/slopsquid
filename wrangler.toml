@@ -1,0 +1,16 @@
+name = "slopsquid"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "."
+
+[env.production]
+name = "slopsquid"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+
+# Static site configuration
+# No build command needed since it's pure HTML/CSS/JS
+# Cloudflare Pages will serve the files directly
+
+# Custom domain will be configured via Cloudflare dashboard
+# slopsquid.com -> this Pages project

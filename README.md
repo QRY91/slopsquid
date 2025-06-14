@@ -34,6 +34,31 @@
 ### From Chrome Web Store
 *Coming after polish phase...*
 
+## 🌐 Website Deployment
+
+The SlopSquid landing page is deployed to [slopsquid.com](https://slopsquid.com) using Cloudflare Pages.
+
+### Cloudflare Pages Setup
+1. **Domain Configuration**: Domain registered with Porkbun, DNS managed through Cloudflare
+2. **Repository Connection**: Connected to [GitHub repo](https://github.com/QRY91/slopsquid)
+3. **Build Settings**: 
+   - Build command: `(none)` - Static HTML/CSS/JS
+   - Output directory: `./` - Root directory
+   - Environment: Production
+
+### Custom Domain Setup
+1. Add `slopsquid.com` as custom domain in Cloudflare Pages
+2. Configure DNS records:
+   - `CNAME` record: `slopsquid.com` → `[pages-subdomain].pages.dev`
+   - `CNAME` record: `www.slopsquid.com` → `[pages-subdomain].pages.dev`
+3. Enable HTTPS (automatic with Cloudflare)
+
+### Deployment Process
+- **Automatic**: Pushes to `main` branch trigger deployments
+- **Preview**: PRs generate preview URLs for testing
+- **Headers**: Security headers configured via `_headers` file
+- **Caching**: Static assets cached for optimal performance
+
 ## 🎨 How It Works
 
 SlopSquid uses enhanced heuristic analysis to identify common AI writing patterns:
