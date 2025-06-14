@@ -1,210 +1,409 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SlopSquid 🦑 - Detect AI-Generated Text</title>
-    <meta name="description" content="Identify AI-generated content with beautiful ink effects. Perfect for journalists, students, and content creators who value authenticity.">
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="squid.png" type="image/png">
-</head>
-<body>
-    <!-- Background Ocean Animation -->
-    <div class="ocean-background">
-        <div class="wave wave1"></div>
-        <div class="wave wave2"></div>
-        <div class="wave wave3"></div>
-    </div>
-    
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span class="logo-icon">🦑</span>
-                <span class="logo-text">SlopSquid</span>
-            </div>
-            <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="#how-it-works">How it Works</a>
-                <a href="#download">Download</a>
-            </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>SlopSquid 🦑 - CLI Tool for Document AI Cleanup</title>
+        <meta
+            name="description"
+            content="Deploy the tentacles! Batch process your docs with parallel AI detection to clean up artificial writing patterns. Keep your documentation authentic."
+        />
+        <link rel="stylesheet" href="style.css" />
+        <link rel="icon" href="squid.png" type="image/png" />
+    </head>
+    <body>
+        <!-- Background Ocean Animation -->
+        <div class="ocean-background">
+            <div class="wave wave1"></div>
+            <div class="wave wave2"></div>
+            <div class="wave wave3"></div>
         </div>
-    </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">
-                    Detect AI-Generated Text with 
-                    <span class="gradient-text">Beautiful Ink Effects</span>
-                </h1>
-                <p class="hero-subtitle">
-                    "Slap that AI!" - Identify suspicious AI-generated content as you browse. 
-                    Perfect for journalists, students, and anyone who values authenticity online.
-                </p>
-                <div class="hero-buttons">
-                    <a href="#download" class="btn btn-primary">
-                        <span>Download Extension</span>
-                        <div class="btn-ripple"></div>
-                    </a>
-                    <a href="#demo" class="btn btn-secondary">
-                        <span>Try Demo</span>
-                    </a>
-                </div>
-            </div>
-            <div class="hero-visual">
-                <div class="squid-container">
-                    <div class="squid-icon">🦑</div>
-                    <div class="ink-splash splash1"></div>
-                    <div class="ink-splash splash2"></div>
-                    <div class="ink-splash splash3"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <h2 class="section-title">Why Choose SlopSquid?</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔍</div>
-                    <h3>Real-time Detection</h3>
-                    <p>Automatically scans text as pages load, identifying AI-generated content instantly without slowing down your browsing.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Beautiful Ink Effects</h3>
-                    <p>Stunning visual feedback with hot pink to purple gradients that elegantly highlight suspicious content.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Privacy-First</h3>
-                    <p>All processing happens locally in your browser. No data leaves your device, ensuring complete privacy.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎚️</div>
-                    <h3>Adjustable Sensitivity</h3>
-                    <p>Fine-tune detection levels to match your needs, from subtle hints to strong confidence indicators.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Lightning Fast</h3>
-                    <p>Lightweight and efficient - won't slow down your browsing experience or consume excessive resources.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Context-Aware</h3>
-                    <p>Right-click any text for instant analysis, or let it work automatically in the background.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="how-it-works">
-        <div class="container">
-            <h2 class="section-title">How SlopSquid Works</h2>
-            <div class="process-steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Install & Browse</h3>
-                        <p>Add SlopSquid to Chrome and continue browsing normally. It works silently in the background.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>AI Detection</h3>
-                        <p>Advanced algorithms analyze text patterns, sentence structure, and common AI writing signatures.</p>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Visual Feedback</h3>
-                        <p>Suspicious content gets beautiful ink effects - from subtle pink hints to bold purple highlights.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Demo Section -->
-    <section id="demo" class="demo">
-        <div class="container">
-            <h2 class="section-title">See It In Action</h2>
-            <div class="demo-container">
-                <div class="demo-text">
-                    <div class="demo-sample low-confidence">
-                        <p>This text demonstrates how SlopSquid identifies potentially AI-generated content through sophisticated analysis of writing patterns and linguistic structures.</p>
-                        <div class="confidence-label">Low Confidence (70%)</div>
-                    </div>
-                    <div class="demo-sample medium-confidence">
-                        <p>Furthermore, it's worth noting that this comprehensive solution leverages advanced algorithms to facilitate seamless detection of artificially generated content, thereby enabling users to make informed decisions.</p>
-                        <div class="confidence-label">Medium Confidence (85%)</div>
-                    </div>
-                    <div class="demo-sample high-confidence">
-                        <p>As an AI language model, I understand that users require robust and innovative solutions to identify AI-generated content. Subsequently, this cutting-edge tool utilizes state-of-the-art detection methodologies to ensure comprehensive analysis.</p>
-                        <div class="confidence-label">High Confidence (95%)</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Download Section -->
-    <section id="download" class="download">
-        <div class="container">
-            <h2 class="section-title">Ready to Get Started?</h2>
-            <div class="download-content">
-                <div class="download-info">
-                    <h3>Available Now</h3>
-                    <p>Join thousands of users who trust SlopSquid to help them navigate the age of AI-generated content.</p>
-                    <ul class="feature-list">
-                        <li>✅ Free to use</li>
-                        <li>✅ No registration required</li>
-                        <li>✅ Works on all websites</li>
-                        <li>✅ Regular updates</li>
-                    </ul>
-                </div>
-                <div class="download-buttons">
-                    <a href="https://chrome.google.com/webstore" class="btn btn-primary btn-large">
-                        <span>Download for Chrome</span>
-                        <small>Chrome Web Store (Coming Soon)</small>
-                    </a>
-                    <a href="https://github.com/QRY91/slopsquid" class="btn btn-secondary">
-                        <span>View on GitHub</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
                     <span class="logo-icon">🦑</span>
                     <span class="logo-text">SlopSquid</span>
                 </div>
-                <div class="footer-links">
-                    <a href="https://github.com/QRY91/slopsquid">GitHub</a>
-                    <a href="#privacy">Privacy</a>
-                    <a href="#support">Support</a>
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#how-it-works">How it Works</a>
+                    <a href="#install">Install</a>
+                    <a href="#github">GitHub</a>
                 </div>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 SlopSquid. Made with 🦑 and a commitment to transparency in the age of AI.</p>
-                <p>Part of the <a href="https://github.com/QRY91">QRY Tool Ecosystem</a></p>
-            </div>
-        </div>
-    </footer>
+        </nav>
 
-    <script src="script.js"></script>
-</body>
-</html> 
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        Deploy the <span class="gradient-text">Tentacles</span>
+                        <br />Clean Your Docs
+                    </h1>
+                    <p class="hero-subtitle">
+                        CLI tool for detecting and cleaning AI artifacts in your
+                        documentation. Batch process with parallel "tentacles"
+                        to keep your voice authentic and your content polished.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="#install" class="btn btn-primary">
+                            <span>Install CLI Tool</span>
+                            <div class="btn-ripple"></div>
+                        </a>
+                        <a
+                            href="https://github.com/QRY91/slopsquid"
+                            class="btn btn-secondary"
+                        >
+                            <span>View on GitHub</span>
+                        </a>
+                    </div>
+                    <div class="hero-code">
+                        <code
+                            >$ slopsquid scan docs/ --threads=8
+                            --interactive</code
+                        >
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="squid-container">
+                        <div class="squid-icon">🦑</div>
+                        <div class="ink-splash splash1"></div>
+                        <div class="ink-splash splash2"></div>
+                        <div class="ink-splash splash3"></div>
+                        <div class="tentacle-lines">
+                            <div class="tentacle t1"></div>
+                            <div class="tentacle t2"></div>
+                            <div class="tentacle t3"></div>
+                            <div class="tentacle t4"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features">
+            <div class="container">
+                <h2 class="section-title">Why Choose SlopSquid?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🦑</div>
+                        <h3>Parallel Tentacles</h3>
+                        <p>
+                            Deploy multiple worker "tentacles" to process files
+                            simultaneously. Batch scan entire directory trees
+                            with configurable thread pools.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
+                        <h3>AI Pattern Detection</h3>
+                        <p>
+                            Identify corporate speak, buzzwords, and artificial
+                            writing patterns using advanced heuristic analysis
+                            and local AI models.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🏠</div>
+                        <h3>Local Processing</h3>
+                        <p>
+                            All AI analysis happens offline using local models.
+                            No cloud APIs, no data transmission, complete
+                            privacy by design.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Interactive Cleanup</h3>
+                        <p>
+                            Review each detection with confidence scoring.
+                            Accept, reject, or learn from corrections to improve
+                            future scans.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔗</div>
+                        <h3>QRY Integration</h3>
+                        <p>
+                            Seamlessly integrates with uroboro for decision
+                            logging and osmotic for awareness patterns. Part of
+                            the QRY ecosystem.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📝</div>
+                        <h3>Multi-Format Support</h3>
+                        <p>
+                            Works with Markdown, HTML, plain text, and code
+                            comments. Perfect for documentation, README files,
+                            and content creation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="how-it-works">
+            <div class="container">
+                <h2 class="section-title">How the Tentacles Work</h2>
+                <div class="process-steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3>File Discovery</h3>
+                            <p>
+                                Recursively scan directories, filter by
+                                patterns, or target specific files. Git
+                                integration for staged file processing.
+                            </p>
+                            <div class="step-code">
+                                <code>slopsquid scan docs/ --recursive</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3>Deploy Tentacles</h3>
+                            <p>
+                                Multiple worker threads grab files in parallel
+                                and analyze content using local AI models with
+                                shared pattern detection.
+                            </p>
+                            <div class="step-code">
+                                <code>--threads=8 --model=llama3.2:1b</code>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3>Ink the Slop</h3>
+                            <p>
+                                Mark AI artifacts with confidence scoring.
+                                Interactive review, automated cleanup, or
+                                integration with your development workflow.
+                            </p>
+                            <div class="step-code">
+                                <code
+                                    >slopsquid clean --interactive
+                                    --confidence=0.8</code
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Demo Section -->
+        <section id="demo" class="demo">
+            <div class="container">
+                <h2 class="section-title">CLI Commands</h2>
+                <div class="demo-container">
+                    <div class="cli-examples">
+                        <div class="cli-example">
+                            <div class="cli-header">
+                                <span class="cli-title">Basic Scanning</span>
+                                <span class="cli-confidence low"
+                                    >Batch Processing</span
+                                >
+                            </div>
+                            <div class="cli-content">
+                                <code>
+                                    # Scan single file<br />
+                                    slopsquid scan README.md<br /><br />
+                                    # Parallel directory processing<br />
+                                    slopsquid scan docs/ --recursive
+                                    --threads=8<br /><br />
+                                    # Pre-commit integration<br />
+                                    slopsquid scan --git-staged
+                                </code>
+                            </div>
+                        </div>
+
+                        <div class="cli-example">
+                            <div class="cli-header">
+                                <span class="cli-title"
+                                    >Interactive Cleanup</span
+                                >
+                                <span class="cli-confidence medium"
+                                    >Smart Review</span
+                                >
+                            </div>
+                            <div class="cli-content">
+                                <code>
+                                    # Interactive mode with confidence
+                                    filtering<br />
+                                    slopsquid clean docs/ --interactive
+                                    --confidence=0.8<br /><br />
+                                    # Auto-fix obvious patterns<br />
+                                    slopsquid clean docs/ --auto-fix --safe<br /><br />
+                                    # Preview changes only<br />
+                                    slopsquid clean docs/ --dry-run
+                                </code>
+                            </div>
+                        </div>
+
+                        <div class="cli-example">
+                            <div class="cli-header">
+                                <span class="cli-title">QRY Integration</span>
+                                <span class="cli-confidence high"
+                                    >Ecosystem</span
+                                >
+                            </div>
+                            <div class="cli-content">
+                                <code>
+                                    # Log to uroboro for decision tracking<br />
+                                    slopsquid scan
+                                    --uroboro-project=doc-cleanup<br /><br />
+                                    # Stream insights to osmotic<br />
+                                    slopsquid scan --osmotic-feed<br /><br />
+                                    # Learn from corrections<br />
+                                    slopsquid train file.md
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Use Cases Section -->
+        <section class="use-cases">
+            <div class="container">
+                <h2 class="section-title">Perfect For</h2>
+                <div class="use-cases-grid">
+                    <div class="use-case">
+                        <h3>👨‍💻 Developers</h3>
+                        <p>
+                            Clean up AI-assisted documentation, README files,
+                            and code comments. Pre-commit hooks for quality
+                            assurance.
+                        </p>
+                    </div>
+                    <div class="use-case">
+                        <h3>📝 Technical Writers</h3>
+                        <p>
+                            Maintain authentic voice across documentation
+                            projects. Remove AI artifacts while preserving
+                            meaning.
+                        </p>
+                    </div>
+                    <div class="use-case">
+                        <h3>✨ Content Creators</h3>
+                        <p>
+                            Polish drafts and articles by removing artificial
+                            writing patterns. Keep your unique voice consistent.
+                        </p>
+                    </div>
+                    <div class="use-case">
+                        <h3>🔧 QRY Users</h3>
+                        <p>
+                            Integrate with uroboro, osmotic, and the broader QRY
+                            ecosystem for systematic content creation.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Installation Section -->
+        <section id="install" class="install">
+            <div class="container">
+                <h2 class="section-title">Deploy Your Own Tentacles</h2>
+                <div class="install-content">
+                    <div class="install-info">
+                        <h3>Coming Soon</h3>
+                        <p>
+                            SlopSquid CLI is in active development. The core
+                            architecture is complete and implementation is
+                            underway.
+                        </p>
+                        <ul class="feature-list">
+                            <li>✅ Local-first AI processing</li>
+                            <li>✅ Batch parallel processing</li>
+                            <li>✅ QRY ecosystem integration</li>
+                            <li>🔧 Interactive cleanup interface</li>
+                            <li>🔧 Pattern learning system</li>
+                        </ul>
+                    </div>
+                    <div class="install-commands">
+                        <div class="install-box">
+                            <h4>Install (Coming Soon)</h4>
+                            <div class="command-block">
+                                <code
+                                    >curl -sSL https://slopsquid.com/install |
+                                    bash</code
+                                >
+                            </div>
+                        </div>
+                        <div class="install-box">
+                            <h4>Build from Source</h4>
+                            <div class="command-block">
+                                <code>
+                                    git clone
+                                    https://github.com/QRY91/slopsquid<br />
+                                    cd slopsquid<br />
+                                    go build -o slopsquid ./cmd/slopsquid
+                                </code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="install-buttons">
+                    <a
+                        href="https://github.com/QRY91/slopsquid"
+                        class="btn btn-primary btn-large"
+                    >
+                        <span>Star on GitHub</span>
+                        <small>Follow development progress</small>
+                    </a>
+                    <a
+                        href="https://github.com/QRY91/slopsquid/releases"
+                        class="btn btn-secondary"
+                    >
+                        <span>View Releases</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-logo">
+                        <span class="logo-icon">🦑</span>
+                        <span class="logo-text">SlopSquid</span>
+                    </div>
+                    <div class="footer-links">
+                        <a href="https://github.com/QRY91/slopsquid">GitHub</a>
+                        <a href="https://github.com/QRY91">QRY Ecosystem</a>
+                        <a href="#privacy">Privacy</a>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>
+                        &copy; 2025 SlopSquid. Deploy the tentacles. Clean up
+                        the slop. Keep your voice authentic.
+                    </p>
+                    <p>
+                        Part of the
+                        <a href="https://github.com/QRY91"
+                            >QRY Tool Ecosystem</a
+                        >
+                        - Privacy-first tools for systematic creators.
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+        <script src="script.js"></script>
+    </body>
+</html>

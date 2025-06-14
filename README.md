@@ -1,140 +1,240 @@
 # SlopSquid 🦑
 
-**Detect AI-generated text with beautiful ink effects**
+**CLI tool for detecting and cleaning AI artifacts in your documentation**
 
-*"Slap that AI!"* - A browser extension that identifies suspicious AI-generated content and marks it with stunning visual feedback as you browse the web.
+*"Deploy the tentacles!"* - Batch process your docs with parallel AI detection to identify and clean up artificial writing patterns, keeping your documentation authentic and polished.
 
-> **🚧 Early Development** - Core functionality working, polishing in progress before Chrome Web Store release.
+> **🚧 Active Development** - Core CLI functionality in progress, integrating with QRY tool ecosystem.
 
-## ✨ Features
+## ✨ What SlopSquid Does
 
-- 🔍 **Real-time Detection** - Automatically scans text as pages load
-- 🎨 **Ink Effects** - Beautiful hot pink to purple visual feedback
-- 🎚️ **Adjustable Sensitivity** - Tune detection to your preferences
-- 🖱️ **One-Click Toggle** - Easy enable/disable from browser toolbar
-- 🔒 **Privacy-First** - All processing happens locally in your browser
-- 🎯 **Context Menu** - Right-click any text for instant analysis
+- 🦑 **Parallel Processing** - Deploy multiple "tentacles" to process files simultaneously
+- 🔍 **AI Pattern Detection** - Identify corporate speak, buzzwords, and artificial writing patterns
+- 🎯 **Batch Operations** - Clean entire directory trees with confidence-based filtering
+- 🏠 **Local Processing** - All AI analysis happens offline using local models (no cloud APIs)
+- 🔗 **QRY Integration** - Logs cleanup decisions to uroboro, feeds insights to osmotic
+- 📝 **Multiple Formats** - Works with Markdown, HTML, plain text, and more
 
 ## 🎯 Perfect For
 
-- **Journalists** - Verify content authenticity
-- **Students** - Identify AI-generated academic content  
-- **Content Creators** - Ensure originality in research
-- **General Users** - Stay informed about AI content online
+- **Developers** - Clean up AI-assisted documentation and README files
+- **Technical Writers** - Maintain authentic voice in documentation projects  
+- **Content Creators** - Remove AI artifacts from drafts and articles
+- **QRY Users** - Integrate with uroboro, osmotic, and the broader tool ecosystem
 
-## 🚀 Installation
+## 🚀 Quick Start
 
-### Development Install (Current)
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode" (top right toggle)
-4. Click "Load unpacked" and select the `slopsquid` folder
-5. The SlopSquid 🦑 icon appears in your toolbar!
+### Installation
+```bash
+# Install from releases (coming soon)
+curl -sSL https://slopsquid.com/install | bash
 
-### From Chrome Web Store
-*Coming after polish phase...*
-
-## 🌐 Website Deployment
-
-The SlopSquid landing page is deployed to [slopsquid.com](https://slopsquid.com) using Cloudflare Pages.
-
-### Cloudflare Pages Setup
-1. **Domain Configuration**: Domain registered with Porkbun, DNS managed through Cloudflare
-2. **Repository Connection**: Connected to [GitHub repo](https://github.com/QRY91/slopsquid)
-3. **Build Settings**: 
-   - Build command: `(none)` - Static HTML/CSS/JS
-   - Output directory: `./` - Root directory
-   - Environment: Production
-
-### Custom Domain Setup
-1. Add `slopsquid.com` as custom domain in Cloudflare Pages
-2. Configure DNS records:
-   - `CNAME` record: `slopsquid.com` → `[pages-subdomain].pages.dev`
-   - `CNAME` record: `www.slopsquid.com` → `[pages-subdomain].pages.dev`
-3. Enable HTTPS (automatic with Cloudflare)
-
-### Deployment Process
-- **Automatic**: Pushes to `main` branch trigger deployments
-- **Preview**: PRs generate preview URLs for testing
-- **Headers**: Security headers configured via `_headers` file
-- **Caching**: Static assets cached for optimal performance
-
-## 🎨 How It Works
-
-SlopSquid uses enhanced heuristic analysis to identify common AI writing patterns:
-
-- **Language Analysis** - Detects overly formal or repetitive phrasing
-- **Sentence Structure** - Identifies unnaturally consistent patterns
-- **AI Vocabulary** - Recognizes common AI-generated phrases
-- **Writing Style** - Spots corporate-speak and artificial formality
-- **Pattern Matching** - Catches phrases like "large language model", "trained on massive dataset"
-
-### Visual Feedback
-- 🟢 **Low Confidence** (60-79%) - Subtle pink highlighting
-- 🟡 **Medium Confidence** (80-89%) - Noticeable ink effects  
-- 🔴 **High Confidence** (90%+) - Strong ink animation with tooltip
-
-## 🛠️ Usage
-
-1. **Automatic Scanning** - Browse normally, SlopSquid works in the background
-2. **Click the Icon** - View detection stats and toggle on/off
-3. **Right-click Text** - Analyze specific selections instantly
-4. **Open Options** - Fine-tune sensitivity and visual preferences
-
-## 🌐 Website
-
-Visit [slopsquid.com](https://slopsquid.com) for more information, examples, and updates.
-
-## 🔧 Technical Details
-
-Built with modern web technologies:
-- **Manifest V3** - Latest Chrome extension standards
-- **Vanilla JavaScript** - Fast and lightweight
-- **CSS Animations** - Smooth ink effects
-- **Local Processing** - No external API dependencies
-
-### File Structure
-```
-slopsquid/
-├── manifest.json         # Extension configuration
-├── content-script.js     # Main detection engine
-├── background.js         # Service worker
-├── styles.css           # Ink effect animations
-├── popup/               # Extension popup UI
-├── options/             # Settings page
-├── icons/              # Crispy pixel art icons
-└── index.html          # Landing page
+# Or build from source
+git clone https://github.com/QRY91/slopsquid
+cd slopsquid
+go build -o slopsquid ./cmd/slopsquid
 ```
 
-## 🎮 Development Status
+### Basic Usage
+```bash
+# Scan a single file
+slopsquid scan README.md
 
-**✅ Completed:**
-- Core AI detection algorithm
-- Visual ink effects system
-- Chrome extension structure  
-- Landing page with ocean/pink theme
-- Options and popup interfaces
+# Deploy tentacles on a directory (parallel processing)
+slopsquid scan docs/ --recursive --threads=8
 
-**🔧 Polish Phase (Next):**
-- Sensitivity fine-tuning
-- Visual effect refinements
-- Custom theming system
-- Enhanced detection patterns
-- Performance optimizations
+# Interactive cleanup mode
+slopsquid clean docs/ --interactive --confidence=0.8
 
-**🚀 Future Enhancements:**
-- Machine learning integration
-- WebGL shader effects
-- User training system
-- Chrome Web Store release
+# Batch processing with uroboro integration
+slopsquid scan docs/ --uroboro-project=documentation-cleanup
+```
 
-## 🎮 Inspiration
+## 🦑 How the Tentacles Work
 
-Inspired by Splatoon's ink mechanics and the growing need to identify AI-generated content in our daily browsing experience.
+SlopSquid deploys multiple worker "tentacles" that grab files in parallel and analyze them using local AI models:
+
+```
+┌─ File Discovery ────┐    ┌─ Tentacle Pool ────┐    ┌─ Results ────────┐
+│ • Recursive scan    │ -> │ • 8 worker threads │ -> │ • Confidence      │
+│ • Pattern matching  │    │ • Local AI model   │    │ • Line markers    │
+│ • Git integration   │    │ • Shared patterns  │    │ • Batch fixes     │
+└────────────────────┘    └───────────────────┘    └──────────────────┘
+```
+
+Each tentacle:
+1. **Grabs files** from the processing queue
+2. **Analyzes content** using local AI models (ollama/llama)  
+3. **Applies pattern detection** for AI writing signatures
+4. **Scores confidence** based on multiple detection algorithms
+5. **Inks suspicious content** with precise line/character markers
+
+## 🛠️ Core Commands
+
+### File Processing
+```bash
+# Scan operations
+slopsquid scan file.md                    # Single file analysis
+slopsquid scan docs/ --recursive          # Directory tree processing
+slopsquid scan --git-staged               # Pre-commit integration
+
+# Cleanup operations  
+slopsquid clean file.md --interactive     # Review each detection
+slopsquid clean docs/ --auto-fix --safe   # Auto-fix obvious patterns
+slopsquid clean docs/ --dry-run           # Preview changes only
+```
+
+### Integration & Configuration
+```bash
+# QRY ecosystem integration
+slopsquid scan --uroboro-project docs     # Log findings to uroboro
+slopsquid scan --osmotic-feed              # Stream insights to osmotic
+
+# Pattern learning and tuning
+slopsquid train file.md                    # Learn from corrections
+slopsquid config --sensitivity 0.8        # Adjust detection threshold
+slopsquid patterns --export patterns.yaml # Export custom patterns
+```
+
+### Batch Operations
+```bash
+# Parallel processing with multiple tentacles
+slopsquid scan docs/ --threads=12 --model=llama3.2:1b
+
+# Confidence-based filtering
+slopsquid clean docs/ --confidence-min=0.9 --auto-fix
+
+# Output formats for integration
+slopsquid scan docs/ --format=json > results.json
+```
+
+## 🎨 Detection Capabilities
+
+### AI Writing Patterns
+- **Buzzword Detection** - Corporate speak, unnecessary jargon, AI favorites
+- **Syntactic Analysis** - Repetitive sentence structures, generic transitions
+- **Semantic Patterns** - Unsupported claims, generic problem-solution language
+- **Style Fingerprinting** - Lack of personal voice, unnatural consistency
+
+### Confidence Scoring
+- **🟢 Low (60-79%)** - Subtle suggestions, may be legitimate formal writing
+- **🟡 Medium (80-89%)** - Likely AI patterns, worth human review
+- **🔴 High (90%+)** - Clear AI signatures, safe for automated cleanup
+
+### Context Awareness
+- **Technical Documentation** - Allows legitimate precision language
+- **Creative Writing** - Higher tolerance for varied expression
+- **Academic Papers** - Considers formal language requirements
+- **Marketing Content** - Adjusts for promotional language patterns
+
+## 🔗 QRY Ecosystem Integration
+
+### With uroboro
+```bash
+# Capture cleanup decisions for learning
+slopsquid clean docs/ --interactive --uroboro-log
+# → Each correction decision gets captured with context
+
+# Log significant pattern discoveries
+slopsquid scan --uroboro-project=doc-quality
+# → AI detection insights become part of your development history
+```
+
+### With osmotic  
+```bash
+# Feed documentation quality patterns to osmotic
+slopsquid scan docs/ --osmotic-stream
+# → "Documentation cleanup activity detected" trends
+# → Insights appear in osmotic morning briefings
+```
+
+### Pre-commit Integration
+```bash
+# Git hook for quality assurance
+echo 'slopsquid scan --git-staged --confidence-min=0.9' > .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+
+# Prevent commits with obvious AI artifacts
+```
+
+## 🏗️ Technical Architecture
+
+### Local AI Processing
+- **Model Support** - ollama, llama.cpp, local transformers
+- **Offline First** - No cloud APIs, complete privacy
+- **Resource Efficient** - Optimized for batch processing
+- **Model Flexibility** - Use any local language model
+
+### Parallel Processing Engine
+- **Worker Pool** - Configurable number of processing tentacles
+- **Queue Management** - Efficient file distribution and load balancing
+- **Result Aggregation** - Merge and score results from multiple workers
+- **Memory Management** - Process large directory trees without memory issues
+
+### File Format Support
+- **Markdown** - README files, documentation, blog posts
+- **HTML** - Web content, documentation sites
+- **Plain Text** - Any text-based content
+- **Code Comments** - Clean up AI-generated code documentation
+- **Extensible** - Plugin system for additional formats
+
+## 🎯 Use Cases
+
+### Documentation Maintenance
+- **Post-AI Collaboration** - Clean up after AI writing sessions
+- **Pre-Publication** - Ensure authentic voice in public documentation  
+- **Portfolio Preparation** - Polish all materials before sharing
+- **Team Standards** - Maintain consistent voice across team documentation
+
+### Development Workflow
+- **Pre-commit Hooks** - Automatic quality checks before commits
+- **CI/CD Integration** - Documentation quality gates in build pipelines
+- **Code Review** - Identify AI artifacts in pull request documentation
+- **Release Preparation** - Clean up all customer-facing materials
+
+### Content Creation
+- **Draft Polishing** - Remove AI artifacts while preserving meaning
+- **Voice Consistency** - Maintain personal/brand voice across content
+- **Quality Assurance** - Systematic approach to content authenticity
+- **Learning Tool** - Understand and avoid AI writing patterns
+
+## 🚧 Development Status
+
+### ✅ Architecture Complete
+- CLI command structure designed
+- Parallel processing architecture defined
+- QRY ecosystem integration planned
+- Local AI processing pipeline specified
+
+### 🔧 In Progress
+- Core CLI implementation (Go)
+- File discovery and processing engine
+- Pattern detection algorithms
+- Local AI model integration
+
+### 🎯 Coming Soon
+- Interactive cleanup interface
+- Pattern learning system
+- Advanced configuration options
+- QRY ecosystem integrations
 
 ## 🤝 Contributing
 
-Part of the [QRY Tool Ecosystem](https://github.com/QRY91) - building privacy-first tools for the modern web.
+SlopSquid is part of the [QRY Tool Ecosystem](https://github.com/QRY91) - building privacy-first, locally-processed tools for systematic creators.
+
+### Development Setup
+```bash
+git clone https://github.com/QRY91/slopsquid
+cd slopsquid
+go mod tidy
+go build ./cmd/slopsquid
+```
+
+### Philosophy
+- **Local-first processing** - No cloud dependencies
+- **Authentic voice preservation** - Clean up AI artifacts without losing meaning
+- **Systematic integration** - Work seamlessly with other QRY tools
+- **Privacy by design** - Your content never leaves your system
 
 ## 📄 License
 
@@ -142,4 +242,7 @@ MIT License - see LICENSE file for details
 
 ---
 
-*Made with 🦑 and a commitment to transparency in the age of AI* 
+*Deploy the tentacles. Clean up the slop. Keep your voice authentic.* 🦑
+
+**Website**: [slopsquid.com](https://slopsquid.com)  
+**Part of**: [QRY Tool Ecosystem](https://github.com/QRY91)
