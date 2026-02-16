@@ -1,441 +1,315 @@
 package detector
 
 import (
+	"embed"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strings"
 )
 
-// DetectionResult represents the result of AI pattern detection
-type DetectionResult struct {
-	Confidence  float64        `json:"confidence"`
-	Patterns    []PatternMatch `json:"patterns"`
-	TextLength  int            `json:"text_length"`
-	Suggestions []string       `json:"suggestions,omitempty"`
+//go:embed data
+var dataFS embed.FS
+
+// Banlist data structures
+type WordEntry struct {
+	Word      string  `json:"word"`
+	PctModels float64 `json:"pct_models"`
+	Severity  string  `json:"severity"`
+	Note      string  `json:"note,omitempty"`
 }
 
-// PatternMatch represents a specific pattern found in text
-type PatternMatch struct {
-	Type       string  `json:"type"`
-	Pattern    string  `json:"pattern"`
-	Position   int     `json:"position"`
-	Length     int     `json:"length"`
-	Confidence float64 `json:"confidence"`
-	Context    string  `json:"context"`
-	Suggestion string  `json:"suggestion,omitempty"`
+type WordData struct {
+	Words []WordEntry `json:"words"`
 }
 
-// PatternDetector is the main AI pattern detection engine
-type PatternDetector struct {
-	sensitivity float64
-	patterns    *PatternDatabase
+type TrigramEntry struct {
+	Phrase    string  `json:"phrase"`
+	PctModels float64 `json:"pct_models"`
+	Severity  string  `json:"severity"`
+	Note      string  `json:"note,omitempty"`
 }
 
-// PatternDatabase contains all the patterns used for detection
-type PatternDatabase struct {
-	aiPhrases          []string
-	corporateSpeak     []string
-	buzzwords          []string
-	formalConnectors   []string
-	aiSpecificPatterns []*regexp.Regexp
-	syntaxPatterns     []*regexp.Regexp
+type TrigramData struct {
+	Trigrams []TrigramEntry `json:"trigrams"`
 }
 
-// NewPatternDetector creates a new detector with specified sensitivity
-func NewPatternDetector(sensitivity float64) *PatternDetector {
-	return &PatternDetector{
-		sensitivity: sensitivity,
-		patterns:    buildPatternDatabase(),
+type PatternEntry struct {
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Severity    string  `json:"severity"`
+	OveruseRat  float64 `json:"overuse_ratio"`
+	Regex       string  `json:"regex"`
+	Note        string  `json:"note,omitempty"`
+}
+
+type PatternData struct {
+	Patterns []PatternEntry `json:"patterns"`
+}
+
+// Hit represents a single slop detection
+type Hit struct {
+	Line     int     `json:"line"`
+	Column   int     `json:"column"`
+	Match    string  `json:"match"`
+	Type     string  `json:"type"` // "word", "trigram", "pattern"
+	Detail   string  `json:"detail"`
+	Severity string  `json:"severity"`
+	Weight   float64 `json:"weight"` // frequency-ratio based weight
+}
+
+// ScanResult is the result of scanning a single file
+type ScanResult struct {
+	Path      string  `json:"path"`
+	Hits      []Hit   `json:"hits"`
+	Score     float64 `json:"score"`
+	LineCount int     `json:"line_count"`
+	WordCount int     `json:"word_count"`
+	Density   float64 `json:"density"` // hits per 1000 words
+	Rating    string  `json:"rating"`  // "clean", "moderate", "heavy"
+}
+
+// Detector is the main slop detection engine
+type Detector struct {
+	words    []WordEntry
+	trigrams []TrigramEntry
+	patterns []compiledPattern
+}
+
+type compiledPattern struct {
+	entry PatternEntry
+	regex *regexp.Regexp
+}
+
+// NewDetector creates a detector with embedded banlist data
+func NewDetector() (*Detector, error) {
+	d := &Detector{}
+
+	// Load word data
+	wordBytes, err := dataFS.ReadFile("data/words.json")
+	if err != nil {
+		return nil, fmt.Errorf("loading word data: %w", err)
 	}
-}
+	var wordData WordData
+	if err := json.Unmarshal(wordBytes, &wordData); err != nil {
+		return nil, fmt.Errorf("parsing word data: %w", err)
+	}
+	d.words = wordData.Words
 
-// DetectAIPatterns analyzes text and returns detection results
-func (pd *PatternDetector) DetectAIPatterns(text string) *DetectionResult {
-	result := &DetectionResult{
-		TextLength: len(text),
-		Patterns:   make([]PatternMatch, 0),
+	// Load trigram data
+	trigramBytes, err := dataFS.ReadFile("data/trigrams.json")
+	if err != nil {
+		return nil, fmt.Errorf("loading trigram data: %w", err)
+	}
+	var trigramData TrigramData
+	if err := json.Unmarshal(trigramBytes, &trigramData); err != nil {
+		return nil, fmt.Errorf("parsing trigram data: %w", err)
+	}
+	d.trigrams = trigramData.Trigrams
+
+	// Load and compile pattern data
+	patternBytes, err := dataFS.ReadFile("data/patterns.json")
+	if err != nil {
+		return nil, fmt.Errorf("loading pattern data: %w", err)
+	}
+	var patternData PatternData
+	if err := json.Unmarshal(patternBytes, &patternData); err != nil {
+		return nil, fmt.Errorf("parsing pattern data: %w", err)
 	}
 
-	// Skip very short text
-	if len(text) < 50 {
+	for _, p := range patternData.Patterns {
+		re, err := regexp.Compile("(?i)" + p.Regex)
+		if err != nil {
+			// Skip invalid patterns rather than failing
+			fmt.Printf("warning: skipping invalid pattern %q: %v\n", p.Name, err)
+			continue
+		}
+		d.patterns = append(d.patterns, compiledPattern{entry: p, regex: re})
+	}
+
+	return d, nil
+}
+
+// Scan analyzes text and returns slop hits with scoring
+func (d *Detector) Scan(text string) *ScanResult {
+	result := &ScanResult{}
+
+	lines := strings.Split(text, "\n")
+	result.LineCount = len(lines)
+	result.WordCount = len(strings.Fields(text))
+
+	if result.WordCount == 0 {
+		result.Rating = "clean"
 		return result
 	}
 
 	lowerText := strings.ToLower(text)
-	sentences := splitSentences(text)
 
-	// Detect various pattern types
-	score := 0.0
+	// Build a line index for mapping character positions to line numbers
+	lineOffsets := buildLineOffsets(text)
 
-	// 1. AI-specific phrases
-	score += pd.detectAIPhrases(lowerText, result)
+	// 1. Scan for banlist words
+	for _, w := range d.words {
+		d.scanWord(lowerText, w, lineOffsets, result)
+	}
 
-	// 2. Corporate speak and buzzwords
-	score += pd.detectCorporateSpeak(lowerText, result)
+	// 2. Scan for trigrams
+	for _, t := range d.trigrams {
+		d.scanTrigram(lowerText, t, lineOffsets, result)
+	}
 
-	// 3. Formal connectors overuse
-	score += pd.detectFormalConnectors(lowerText, result)
+	// 3. Scan for structural patterns
+	for _, p := range d.patterns {
+		d.scanPattern(lowerText, p, lineOffsets, result)
+	}
 
-	// 4. Sentence structure patterns
-	score += pd.detectSentencePatterns(sentences, result)
+	// Calculate score
+	result.Score = d.calculateScore(result)
+	result.Density = float64(len(result.Hits)) / float64(result.WordCount) * 1000
 
-	// 5. AI-specific regex patterns
-	score += pd.detectRegexPatterns(text, lowerText, result)
-
-	// 6. Repetitive language patterns
-	score += pd.detectRepetitivePatterns(text, result)
-
-	// 7. Unnatural formality
-	score += pd.detectUnnaturalFormality(lowerText, sentences, result)
-
-	result.Confidence = min(score, 1.0)
-
-	// Add general suggestions if confidence is high
-	if result.Confidence > 0.7 {
-		result.Suggestions = pd.generateSuggestions(result)
+	if result.Score < 20 {
+		result.Rating = "clean"
+	} else if result.Score < 50 {
+		result.Rating = "moderate"
+	} else {
+		result.Rating = "heavy"
 	}
 
 	return result
 }
 
-func (pd *PatternDetector) detectAIPhrases(lowerText string, result *DetectionResult) float64 {
-	score := 0.0
-	for _, phrase := range pd.patterns.aiPhrases {
-		if index := strings.Index(lowerText, phrase); index != -1 {
-			match := PatternMatch{
-				Type:       "ai_phrase",
-				Pattern:    phrase,
-				Position:   index,
-				Length:     len(phrase),
-				Confidence: 0.8,
-				Context:    extractContext(lowerText, index, len(phrase)),
-				Suggestion: getPhraseSuggestion(phrase),
-			}
-			result.Patterns = append(result.Patterns, match)
-			score += 0.15
-		}
-	}
-	return score
-}
+func (d *Detector) scanWord(lowerText string, w WordEntry, lineOffsets []int, result *ScanResult) {
+	// Match whole words only
+	pattern := regexp.MustCompile(`\b` + regexp.QuoteMeta(w.Word) + `\b`)
+	matches := pattern.FindAllStringIndex(lowerText, -1)
 
-func (pd *PatternDetector) detectCorporateSpeak(lowerText string, result *DetectionResult) float64 {
-	score := 0.0
-
-	// Check for buzzwords
-	for _, buzzword := range pd.patterns.buzzwords {
-		count := strings.Count(lowerText, buzzword)
-		if count > 0 {
-			// Find first occurrence for position
-			index := strings.Index(lowerText, buzzword)
-			match := PatternMatch{
-				Type:       "buzzword",
-				Pattern:    buzzword,
-				Position:   index,
-				Length:     len(buzzword),
-				Confidence: 0.6,
-				Context:    extractContext(lowerText, index, len(buzzword)),
-			}
-			result.Patterns = append(result.Patterns, match)
-			score += float64(count) * 0.1
-		}
-	}
-
-	// Check for corporate speak
-	for _, phrase := range pd.patterns.corporateSpeak {
-		if index := strings.Index(lowerText, phrase); index != -1 {
-			match := PatternMatch{
-				Type:       "corporate_speak",
-				Pattern:    phrase,
-				Position:   index,
-				Length:     len(phrase),
-				Confidence: 0.7,
-				Context:    extractContext(lowerText, index, len(phrase)),
-			}
-			result.Patterns = append(result.Patterns, match)
-			score += 0.12
-		}
-	}
-
-	return min(score, 0.4) // Cap corporate speak contribution
-}
-
-func (pd *PatternDetector) detectFormalConnectors(lowerText string, result *DetectionResult) float64 {
-	connectorCount := 0
-	for _, connector := range pd.patterns.formalConnectors {
-		count := strings.Count(lowerText, connector)
-		if count > 0 {
-			connectorCount += count
-			// Find first occurrence
-			index := strings.Index(lowerText, connector)
-			match := PatternMatch{
-				Type:       "formal_connector",
-				Pattern:    connector,
-				Position:   index,
-				Length:     len(connector),
-				Confidence: 0.5,
-				Context:    extractContext(lowerText, index, len(connector)),
-			}
-			result.Patterns = append(result.Patterns, match)
-		}
-	}
-
-	// Score based on density of formal connectors
-	wordCount := len(strings.Fields(lowerText))
-	if wordCount > 0 {
-		density := float64(connectorCount) / float64(wordCount)
-		return min(density*2.0, 0.3) // Scale and cap
-	}
-	return 0.0
-}
-
-func (pd *PatternDetector) detectSentencePatterns(sentences []string, result *DetectionResult) float64 {
-	if len(sentences) < 3 {
-		return 0.0
-	}
-
-	score := 0.0
-	perfectLengthCount := 0
-	longSentenceCount := 0
-
-	for _, sentence := range sentences {
-		words := strings.Fields(strings.TrimSpace(sentence))
-		wordCount := len(words)
-
-		// AI tends to write consistently medium-length sentences
-		if wordCount >= 15 && wordCount <= 25 {
-			perfectLengthCount++
-		}
-
-		// AI also creates many long, complex sentences
-		if wordCount > 25 {
-			longSentenceCount++
-		}
-	}
-
-	totalSentences := len(sentences)
-	perfectRatio := float64(perfectLengthCount) / float64(totalSentences)
-	longRatio := float64(longSentenceCount) / float64(totalSentences)
-
-	if perfectRatio > 0.6 {
-		result.Patterns = append(result.Patterns, PatternMatch{
-			Type:       "sentence_uniformity",
-			Pattern:    "uniform sentence lengths",
-			Confidence: perfectRatio,
-			Context:    "sentences are suspiciously uniform in length",
+	for _, m := range matches {
+		line, col := posToLineCol(m[0], lineOffsets)
+		result.Hits = append(result.Hits, Hit{
+			Line:     line,
+			Column:   col,
+			Match:    lowerText[m[0]:m[1]],
+			Type:     "word",
+			Detail:   fmt.Sprintf("%.1f%% of models overuse this word", w.PctModels),
+			Severity: w.Severity,
+			Weight:   w.PctModels / 100.0,
 		})
-		score += perfectRatio * 0.25
 	}
-
-	if longRatio > 0.4 {
-		result.Patterns = append(result.Patterns, PatternMatch{
-			Type:       "long_sentences",
-			Pattern:    "excessive long sentences",
-			Confidence: longRatio,
-			Context:    "many sentences are unusually long and complex",
-		})
-		score += longRatio * 0.2
-	}
-
-	return score
 }
 
-func (pd *PatternDetector) detectRegexPatterns(text, lowerText string, result *DetectionResult) float64 {
-	score := 0.0
+func (d *Detector) scanTrigram(lowerText string, t TrigramEntry, lineOffsets []int, result *ScanResult) {
+	// Trigrams need fuzzy matching — words may not be adjacent
+	// Search for all words within a 5-word window
+	words := strings.Fields(t.Phrase)
+	if len(words) < 2 {
+		return
+	}
 
-	for _, pattern := range pd.patterns.aiSpecificPatterns {
-		matches := pattern.FindAllStringIndex(lowerText, -1)
-		for _, match := range matches {
-			start, end := match[0], match[1]
-			patternMatch := PatternMatch{
-				Type:       "ai_pattern",
-				Pattern:    pattern.String(),
-				Position:   start,
-				Length:     end - start,
-				Confidence: 0.7,
-				Context:    extractContext(lowerText, start, end-start),
-			}
-			result.Patterns = append(result.Patterns, patternMatch)
-			score += 0.1
+	// Simple substring search for the phrase
+	idx := 0
+	for {
+		pos := strings.Index(lowerText[idx:], words[0])
+		if pos == -1 {
+			break
 		}
-	}
+		absPos := idx + pos
 
-	return min(score, 0.3)
-}
-
-func (pd *PatternDetector) detectRepetitivePatterns(text string, result *DetectionResult) float64 {
-	words := strings.Fields(strings.ToLower(text))
-	if len(words) < 20 {
-		return 0.0
-	}
-
-	wordCount := make(map[string]int)
-	for _, word := range words {
-		// Skip common words
-		if len(word) > 4 && !isCommonWord(word) {
-			wordCount[word]++
+		// Check if remaining words appear nearby (within 60 chars)
+		window := 60
+		end := absPos + window
+		if end > len(lowerText) {
+			end = len(lowerText)
 		}
-	}
+		snippet := lowerText[absPos:end]
 
-	repetitiveScore := 0.0
-	for word, count := range wordCount {
-		if count > 3 { // Word appears more than 3 times
-			ratio := float64(count) / float64(len(words))
-			if ratio > 0.02 { // More than 2% of text
-				result.Patterns = append(result.Patterns, PatternMatch{
-					Type:       "repetitive_word",
-					Pattern:    word,
-					Confidence: ratio * 5, // Scale up
-					Context:    fmt.Sprintf("word '%s' repeated %d times", word, count),
-				})
-				repetitiveScore += ratio * 2
+		allFound := true
+		for _, w := range words[1:] {
+			if !strings.Contains(snippet, w) {
+				allFound = false
+				break
 			}
 		}
-	}
 
-	return min(repetitiveScore, 0.25)
-}
-
-func (pd *PatternDetector) detectUnnaturalFormality(lowerText string, sentences []string, result *DetectionResult) float64 {
-	// Check for excessive use of passive voice
-	passiveCount := 0
-	passivePatterns := []*regexp.Regexp{
-		regexp.MustCompile(`\b(is|are|was|were|being|been)\s+\w+ed\b`),
-		regexp.MustCompile(`\b(is|are|was|were)\s+(being\s+)?\w+ed\s+by\b`),
-	}
-
-	for _, pattern := range passivePatterns {
-		matches := pattern.FindAllString(lowerText, -1)
-		passiveCount += len(matches)
-	}
-
-	if len(sentences) > 0 {
-		passiveRatio := float64(passiveCount) / float64(len(sentences))
-		if passiveRatio > 0.3 {
-			result.Patterns = append(result.Patterns, PatternMatch{
-				Type:       "excessive_passive",
-				Pattern:    "passive voice overuse",
-				Confidence: passiveRatio,
-				Context:    "excessive use of passive voice",
+		if allFound {
+			line, col := posToLineCol(absPos, lineOffsets)
+			result.Hits = append(result.Hits, Hit{
+				Line:     line,
+				Column:   col,
+				Match:    t.Phrase,
+				Type:     "trigram",
+				Detail:   fmt.Sprintf("%.1f%% of models overuse this phrase", t.PctModels),
+				Severity: t.Severity,
+				Weight:   t.PctModels / 100.0,
 			})
-			return passiveRatio * 0.2
+		}
+
+		idx = absPos + len(words[0])
+		if idx >= len(lowerText) {
+			break
 		}
 	}
-
-	return 0.0
 }
 
-func (pd *PatternDetector) generateSuggestions(result *DetectionResult) []string {
-	suggestions := make([]string, 0)
+func (d *Detector) scanPattern(lowerText string, p compiledPattern, lineOffsets []int, result *ScanResult) {
+	matches := p.regex.FindAllStringIndex(lowerText, -1)
 
-	if result.Confidence > 0.9 {
-		suggestions = append(suggestions, "Consider rewriting this content to use more natural, conversational language")
+	for _, m := range matches {
+		line, col := posToLineCol(m[0], lineOffsets)
+		matchText := lowerText[m[0]:m[1]]
+		if len(matchText) > 60 {
+			matchText = matchText[:60] + "..."
+		}
+		result.Hits = append(result.Hits, Hit{
+			Line:     line,
+			Column:   col,
+			Match:    matchText,
+			Type:     "pattern",
+			Detail:   fmt.Sprintf("%s (%.1fx overrepresented)", p.entry.Description, p.entry.OveruseRat),
+			Severity: p.entry.Severity,
+			Weight:   p.entry.OveruseRat / 10.0, // normalize to ~0-1 range
+		})
 	}
-	if result.Confidence > 0.8 {
-		suggestions = append(suggestions, "Try to vary sentence length and structure")
-		suggestions = append(suggestions, "Replace formal connectors with simpler transitions")
-	}
-	if result.Confidence > 0.7 {
-		suggestions = append(suggestions, "Remove unnecessary buzzwords and corporate jargon")
+}
+
+func (d *Detector) calculateScore(result *ScanResult) float64 {
+	if len(result.Hits) == 0 || result.WordCount == 0 {
+		return 0
 	}
 
-	return suggestions
+	totalWeight := 0.0
+	for _, h := range result.Hits {
+		totalWeight += h.Weight
+	}
+
+	// Score = weighted hits per 1000 words, scaled to 0-100
+	rawScore := (totalWeight / float64(result.WordCount)) * 1000
+
+	// Clamp to 0-100
+	if rawScore > 100 {
+		return 100
+	}
+	return rawScore
 }
 
 // Helper functions
-func buildPatternDatabase() *PatternDatabase {
-	return &PatternDatabase{
-		aiPhrases: []string{
-			"as an ai", "i apologize", "i understand", "i'm sorry", "i cannot",
-			"large language model", "trained on", "variety of tasks",
-			"human-like responses", "wide range of", "diverse set of",
-			"it's worth noting", "it is important to note", "delve into",
-		},
-		corporateSpeak: []string{
-			"leverage", "synergy", "paradigm", "ecosystem", "holistic",
-			"streamline", "optimize", "maximize", "facilitate", "utilize",
-			"cutting-edge", "state-of-the-art", "innovative", "robust",
-			"comprehensive", "seamless", "scalable", "strategic",
-		},
-		buzzwords: []string{
-			"disruptive", "revolutionary", "game-changing", "next-generation",
-			"best-in-class", "world-class", "industry-leading", "market-leading",
-			"transformative", "groundbreaking", "pioneering", "advanced",
-		},
-		formalConnectors: []string{
-			"furthermore", "moreover", "subsequently", "therefore", "however",
-			"nevertheless", "nonetheless", "additionally", "consequently",
-			"thus", "hence", "whereby", "wherein", "thereof", "thereby",
-		},
-		aiSpecificPatterns: []*regexp.Regexp{
-			regexp.MustCompile(`\b(can be used for|is able to|has been trained|is capable of)\b`),
-			regexp.MustCompile(`\b(a variety of|wide range of|diverse set of|massive dataset)\b`),
-			regexp.MustCompile(`\b(language model|text generation|natural language processing)\b`),
-			regexp.MustCompile(`\b(it's important to (note|understand)|it should be noted)\b`),
-		},
-	}
-}
-
-func splitSentences(text string) []string {
-	// Simple sentence splitting
-	sentences := regexp.MustCompile(`[.!?]+`).Split(text, -1)
-	result := make([]string, 0, len(sentences))
-	for _, sentence := range sentences {
-		trimmed := strings.TrimSpace(sentence)
-		if len(trimmed) > 10 { // Skip very short fragments
-			result = append(result, trimmed)
+func buildLineOffsets(text string) []int {
+	offsets := []int{0}
+	for i, ch := range text {
+		if ch == '\n' {
+			offsets = append(offsets, i+1)
 		}
 	}
-	return result
+	return offsets
 }
 
-func extractContext(text string, position, length int) string {
-	start := maxInt(0, position-30)
-	end := minInt(len(text), position+length+30)
-	return strings.TrimSpace(text[start:end])
-}
-
-func getPhraseSuggestion(phrase string) string {
-	suggestions := map[string]string{
-		"it's worth noting":       "consider",
-		"it is important to note": "note that",
-		"delve into":              "explore",
-		"facilitate":              "help",
-		"utilize":                 "use",
-		"leverage":                "use",
-		"comprehensive":           "complete",
-		"robust":                  "strong",
-		"seamless":                "smooth",
+func posToLineCol(pos int, lineOffsets []int) (int, int) {
+	line := 1
+	for i, offset := range lineOffsets {
+		if offset > pos {
+			break
+		}
+		line = i + 1
 	}
-	return suggestions[phrase]
-}
-
-func isCommonWord(word string) bool {
-	commonWords := map[string]bool{
-		"the": true, "and": true, "that": true, "have": true, "for": true,
-		"not": true, "with": true, "you": true, "this": true, "but": true,
-		"his": true, "from": true, "they": true, "she": true, "her": true,
-		"been": true, "than": true, "its": true, "who": true, "oil": true,
-	}
-	return commonWords[word]
-}
-
-func min(a, b float64) float64 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func minInt(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	col := pos - lineOffsets[line-1] + 1
+	return line, col
 }

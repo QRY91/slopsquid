@@ -1,259 +1,398 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"sort"
 	"strings"
+	"time"
 
+	"github.com/QRY91/slopsquid/internal/crawler"
 	"github.com/QRY91/slopsquid/internal/detector"
 	"github.com/QRY91/slopsquid/internal/scanner"
 	"github.com/spf13/cobra"
 )
 
 var (
-	version = "0.1.0"
+	version = "0.3.0"
 
 	// Global flags
-	verbose    bool
-	confidence float64
-	threads    int
-	recursive  bool
-	dryRun     bool
+	verbose   bool
+	recursive bool
+	jsonOut   bool
+
+	// Report flags
+	reportDepth   int
+	reportMax     int
+	reportDelay   int
+	reportWorkers int
 )
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "slopsquid",
-	Short: "CLI tool for detecting and cleaning AI artifacts in documentation 🦑",
-	Long: `SlopSquid is a CLI tool that detects and cleans AI-generated patterns
-from your documentation, keeping your content authentic and polished.
-
-Deploy the tentacles to identify corporate speak, buzzwords, and artificial
-writing patterns in your files.`,
+	Use:     "slopsquid",
+	Short:   "Detect LLM-overused patterns in text",
 	Version: version,
+	Long: `SlopSquid scans text files for words, phrases, and structural patterns
+that are statistically overrepresented in LLM output relative to human writing.
+
+Based on frequency-ratio data from the Antislop paper (Paech et al., 2025),
+which analyzed 67 AI models against human writing baselines.`,
 }
 
 var scanCmd = &cobra.Command{
-	Use:   "scan [file/directory]",
-	Short: "Scan files for AI-generated content patterns",
-	Long: `Scan analyzes files or directories to detect AI-generated content patterns.
-It identifies corporate speak, buzzwords, repetitive structures, and other
-artificial writing signatures.
-
-Examples:
-  slopsquid scan README.md
-  slopsquid scan docs/ --recursive --threads=8
-  slopsquid scan --confidence=0.8 project/`,
-	Args: cobra.MinimumNArgs(1),
+	Use:   "scan [file|directory...]",
+	Short: "Scan files and report slop hits with scoring",
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runScan(args)
 	},
 }
 
-var cleanCmd = &cobra.Command{
-	Use:   "clean [file/directory]",
-	Short: "Clean AI artifacts from files",
-	Long: `Clean removes or suggests replacements for detected AI patterns in your files.
-It can run in interactive mode for review or automatically fix obvious patterns.
-
-Examples:
-  slopsquid clean README.md --interactive
-  slopsquid clean docs/ --auto-fix --safe
-  slopsquid clean project/ --dry-run --confidence=0.9`,
-	Args: cobra.MinimumNArgs(1),
+var scoreCmd = &cobra.Command{
+	Use:   "score [file...]",
+	Short: "Output slop density score (0-100) for each file",
+	Args:  cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return runClean(args)
+		return runScore(args)
+	},
+}
+
+var reportCmd = &cobra.Command{
+	Use:   "report <url|directory>",
+	Short: "Generate a consolidated slop report for a site or directory",
+	Long: `Report generates a consolidated slop analysis. Accepts either:
+
+  A URL:       slopsquid report qry.zone
+               Crawls the site, respects robots.txt, seeds from sitemap.xml
+
+  A directory: slopsquid report ./src/
+               Scans local files recursively with HTML text extraction
+
+Both produce the same report format: per-page scores, aggregate stats,
+and the most frequent slop patterns across the entire corpus.`,
+	Args: cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runReport(args[0])
 	},
 }
 
 func init() {
-	// Global flags
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	rootCmd.PersistentFlags().Float64VarP(&confidence, "confidence", "c", 0.7, "minimum confidence threshold (0.0-1.0)")
-	rootCmd.PersistentFlags().IntVarP(&threads, "threads", "t", 4, "number of processing threads")
-	rootCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", false, "process directories recursively")
+	rootCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "process directories recursively")
+	rootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "output as JSON")
 
-	// Scan command flags
-	scanCmd.Flags().StringP("format", "f", "text", "output format (text, json, yaml)")
-	scanCmd.Flags().StringP("output", "o", "", "output file (default: stdout)")
-	scanCmd.Flags().Bool("git-staged", false, "scan only git staged files")
+	reportCmd.Flags().IntVar(&reportDepth, "depth", 10, "maximum crawl depth (URLs only)")
+	reportCmd.Flags().IntVar(&reportMax, "max-pages", 200, "maximum pages to crawl (URLs only)")
+	reportCmd.Flags().IntVar(&reportDelay, "delay", 200, "delay between requests in ms (URLs only)")
+	reportCmd.Flags().IntVar(&reportWorkers, "workers", 3, "concurrent requests (URLs only)")
 
-	// Clean command flags
-	cleanCmd.Flags().BoolP("interactive", "i", false, "interactive mode - review each detection")
-	cleanCmd.Flags().Bool("auto-fix", false, "automatically fix obvious patterns")
-	cleanCmd.Flags().Bool("safe", false, "only apply safe, low-risk fixes")
-	cleanCmd.Flags().BoolVarP(&dryRun, "dry-run", "n", false, "preview changes without applying them")
-	cleanCmd.Flags().String("backup-suffix", ".bak", "suffix for backup files")
-
-	// Add commands to root
 	rootCmd.AddCommand(scanCmd)
-	rootCmd.AddCommand(cleanCmd)
+	rootCmd.AddCommand(scoreCmd)
+	rootCmd.AddCommand(reportCmd)
 }
 
-func runScan(targets []string) error {
-	if verbose {
-		fmt.Fprintf(os.Stderr, "🦑 SlopSquid scanning with confidence threshold %.2f\n", confidence)
-		fmt.Fprintf(os.Stderr, "📁 Targets: %v\n", targets)
-		if recursive {
-			fmt.Fprintf(os.Stderr, "🔄 Recursive mode enabled\n")
-		}
-		fmt.Fprintf(os.Stderr, "🧵 Using %d processing threads\n", threads)
-	}
-
-	// Create scanner with options
-	scanOptions := scanner.ScanOptions{
-		Recursive:   recursive,
-		MaxFileSize: 10 * 1024 * 1024, // 10MB
-	}
-	fileScanner := scanner.NewScanner(scanOptions)
-
-	// Create detector
-	patternDetector := detector.NewPatternDetector(confidence)
-
-	// Scan files
-	files, err := fileScanner.ScanTargets(targets)
+func getDetectorAndFiles(targets []string) (*detector.Detector, []*scanner.FileInfo, error) {
+	d, err := detector.NewDetector()
 	if err != nil {
-		return fmt.Errorf("scanning failed: %w", err)
+		return nil, nil, fmt.Errorf("initializing detector: %w", err)
 	}
 
-	if verbose {
-		fmt.Fprintf(os.Stderr, "📄 Found %d files to analyze\n", len(files))
-	}
-
-	// Results storage
-
-	var results []ScanResult
-	totalDetections := 0
-
-	// Process each file
-	for _, file := range files {
-		if file.Error != "" {
-			if verbose {
-				fmt.Fprintf(os.Stderr, "⚠️  Error with %s: %s\n", file.Path, file.Error)
-			}
-			continue
-		}
-
-		if len(file.Content) < 50 {
-			continue // Skip very short files
-		}
-
-		// Detect AI patterns
-		detection := patternDetector.DetectAIPatterns(file.Content)
-
-		if detection.Confidence >= confidence {
-			results = append(results, ScanResult{
-				File:   file,
-				Result: detection,
-			})
-			totalDetections++
-
-			// Print immediate feedback for text output - will be handled by caller
-		}
-	}
-
-	// Return results for caller to handle formatting
-	for _, result := range results {
-		printTextResult(result.File, result.Result)
-	}
-
-	if len(results) == 0 {
-		fmt.Printf("🦑 Scanned %d files, no AI patterns found above %.2f confidence\n",
-			len(files), confidence)
-	}
-
-	return nil
-}
-
-func runClean(targets []string) error {
-	if verbose {
-		fmt.Fprintf(os.Stderr, "🦑 SlopSquid cleaning with confidence threshold %.2f\n", confidence)
-		fmt.Fprintf(os.Stderr, "📁 Targets: %v\n", targets)
-		if dryRun {
-			fmt.Fprintf(os.Stderr, "👀 Dry run mode - no changes will be made\n")
-		}
-	}
-
-	// First scan to find issues
 	scanOptions := scanner.ScanOptions{
 		Recursive:   recursive,
 		MaxFileSize: 10 * 1024 * 1024,
 	}
 	fileScanner := scanner.NewScanner(scanOptions)
-	patternDetector := detector.NewPatternDetector(confidence)
 
 	files, err := fileScanner.ScanTargets(targets)
 	if err != nil {
-		return fmt.Errorf("scanning failed: %w", err)
+		return nil, nil, fmt.Errorf("scanning targets: %w", err)
 	}
 
-	// Default values for now - will be passed as parameters later
-	interactive := false
-	autoFix := false
-	safe := false
+	if verbose {
+		fmt.Fprintf(os.Stderr, "found %d files to analyze\n", len(files))
+	}
 
-	filesProcessed := 0
-	patternsFound := 0
+	return d, files, nil
+}
+
+func runScan(targets []string) error {
+	d, files, err := getDetectorAndFiles(targets)
+	if err != nil {
+		return err
+	}
+
+	type fileResult struct {
+		Path   string               `json:"path"`
+		Result *detector.ScanResult `json:"result"`
+	}
+
+	var results []fileResult
+	totalHits := 0
 
 	for _, file := range files {
 		if file.Error != "" {
+			if verbose {
+				fmt.Fprintf(os.Stderr, "skip %s: %s\n", file.Path, file.Error)
+			}
+			continue
+		}
+		if len(file.Content) < 20 {
 			continue
 		}
 
-		detection := patternDetector.DetectAIPatterns(file.Content)
-		if detection.Confidence < confidence {
+		result := d.Scan(file.Content)
+		result.Path = file.Path
+
+		if len(result.Hits) > 0 {
+			results = append(results, fileResult{Path: file.Path, Result: result})
+			totalHits += len(result.Hits)
+		}
+	}
+
+	if jsonOut {
+		data, _ := json.MarshalIndent(results, "", "  ")
+		fmt.Println(string(data))
+		return nil
+	}
+
+	if len(results) == 0 {
+		fmt.Printf("scanned %d files — clean\n", len(files))
+		return nil
+	}
+
+	// Sort by score descending
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Result.Score > results[j].Result.Score
+	})
+
+	for _, r := range results {
+		printScanResult(r.Path, r.Result)
+	}
+
+	fmt.Printf("\n%d files scanned, %d with hits, %d total detections\n",
+		len(files), len(results), totalHits)
+
+	return nil
+}
+
+func runScore(targets []string) error {
+	d, files, err := getDetectorAndFiles(targets)
+	if err != nil {
+		return err
+	}
+
+	type scoreEntry struct {
+		Path    string  `json:"path"`
+		Score   float64 `json:"score"`
+		Rating  string  `json:"rating"`
+		Hits    int     `json:"hits"`
+		Words   int     `json:"words"`
+		Density float64 `json:"density"`
+	}
+
+	var entries []scoreEntry
+
+	for _, file := range files {
+		if file.Error != "" || len(file.Content) < 20 {
 			continue
 		}
 
-		filesProcessed++
-		patternsFound += len(detection.Patterns)
-
-		fmt.Printf("\n📄 %s (confidence: %.2f)\n", file.Path, detection.Confidence)
-
-		// Show detected patterns
-		for i, pattern := range detection.Patterns {
-			fmt.Printf("  %d. %s: %s", i+1, pattern.Type, pattern.Pattern)
-			if pattern.Suggestion != "" {
-				fmt.Printf(" → %s", pattern.Suggestion)
-			}
-			fmt.Println()
-			if pattern.Context != "" {
-				fmt.Printf("     Context: %s\n", pattern.Context)
-			}
-		}
-
-		// Show suggestions
-		if len(detection.Suggestions) > 0 {
-			fmt.Println("  💡 Suggestions:")
-			for _, suggestion := range detection.Suggestions {
-				fmt.Printf("     • %s\n", suggestion)
-			}
-		}
-
-		if interactive && !dryRun {
-			fmt.Print("  Apply fixes? (y/N): ")
-			var response string
-			fmt.Scanln(&response)
-			if strings.ToLower(response) == "y" || strings.ToLower(response) == "yes" {
-				fmt.Printf("  ✅ Would apply fixes to %s (not implemented yet)\n", file.Path)
-			}
-		} else if autoFix && !dryRun {
-			if !safe || detection.Confidence > 0.9 {
-				fmt.Printf("  🔧 Would auto-fix %s (not implemented yet)\n", file.Path)
-			}
-		}
+		result := d.Scan(file.Content)
+		entries = append(entries, scoreEntry{
+			Path:    file.Path,
+			Score:   result.Score,
+			Rating:  result.Rating,
+			Hits:    len(result.Hits),
+			Words:   result.WordCount,
+			Density: result.Density,
+		})
 	}
 
-	fmt.Printf("\n🦑 Summary: processed %d files, found %d patterns\n", filesProcessed, patternsFound)
-	if dryRun {
-		fmt.Println("👀 Dry run complete - no files were modified")
+	// Sort by score descending
+	sort.Slice(entries, func(i, j int) bool {
+		return entries[i].Score > entries[j].Score
+	})
+
+	if jsonOut {
+		data, _ := json.MarshalIndent(entries, "", "  ")
+		fmt.Println(string(data))
+		return nil
 	}
 
+	for _, e := range entries {
+		icon := ratingIcon(e.Rating)
+		fmt.Printf("%s %5.1f  %-8s  %3d hits  %5d words  %s\n",
+			icon, e.Score, e.Rating, e.Hits, e.Words, e.Path)
+	}
+
+	return nil
+}
+
+// isURL returns true if the target looks like a URL rather than a local path
+func isURL(target string) bool {
+	if strings.HasPrefix(target, "http://") || strings.HasPrefix(target, "https://") {
+		return true
+	}
+	// Bare domain: contains a dot but no path separator at start
+	if strings.Contains(target, ".") && !strings.HasPrefix(target, ".") && !strings.HasPrefix(target, "/") {
+		// Check it's not a relative file path like "foo.html"
+		if _, err := os.Stat(target); os.IsNotExist(err) {
+			return true
+		}
+	}
+	return false
+}
+
+func runReport(target string) error {
+	if isURL(target) {
+		return runReportHTTP(target)
+	}
+	return runReportLocal(target)
+}
+
+func runReportHTTP(rootURL string) error {
+	if !strings.HasPrefix(rootURL, "http") {
+		rootURL = "https://" + rootURL
+	}
+
+	d, err := detector.NewDetector()
+	if err != nil {
+		return fmt.Errorf("initializing detector: %w", err)
+	}
+
+	c, err := crawler.New(rootURL, crawler.Options{
+		MaxDepth:    reportDepth,
+		MaxPages:    reportMax,
+		Concurrency: reportWorkers,
+		Delay:       time.Duration(reportDelay) * time.Millisecond,
+		Verbose:     verbose,
+	})
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(os.Stderr, "crawling %s ...\n", rootURL)
+
+	pages, err := c.Crawl(func(n int, url string) {
+		if verbose {
+			fmt.Fprintf(os.Stderr, "  [%d] %s\n", n, url)
+		} else {
+			fmt.Fprintf(os.Stderr, "\r  %d pages fetched", n)
+		}
+	})
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "\r  %d pages fetched\n", len(pages))
+
+	var results []crawlResult
+	var skipped int
+	totalWords := 0
+	totalHits := 0
+
+	for _, page := range pages {
+		if page.Error != "" || len(strings.Fields(page.Text)) < 10 {
+			skipped++
+			continue
+		}
+
+		result := d.Scan(page.Text)
+		result.Path = page.URL
+		totalWords += result.WordCount
+		totalHits += len(result.Hits)
+
+		results = append(results, crawlResult{URL: page.URL, Result: result})
+	}
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Result.Score > results[j].Result.Score
+	})
+
+	if jsonOut {
+		data, _ := json.MarshalIndent(results, "", "  ")
+		fmt.Println(string(data))
+		return nil
+	}
+
+	printCrawlReport(rootURL, results, len(pages), skipped, totalWords, totalHits)
+	return nil
+}
+
+func runReportLocal(target string) error {
+	absTarget, _ := filepath.Abs(target)
+
+	d, err := detector.NewDetector()
+	if err != nil {
+		return fmt.Errorf("initializing detector: %w", err)
+	}
+
+	scanOptions := scanner.ScanOptions{
+		Recursive:   true,
+		MaxFileSize: 10 * 1024 * 1024,
+	}
+	fileScanner := scanner.NewScanner(scanOptions)
+
+	files, err := fileScanner.ScanTargets([]string{target})
+	if err != nil {
+		return fmt.Errorf("scanning targets: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "scanning %s ...\n", absTarget)
+
+	var results []crawlResult
+	var skipped int
+	totalWords := 0
+	totalHits := 0
+
+	for _, file := range files {
+		if file.Error != "" {
+			skipped++
+			continue
+		}
+
+		text := file.Content
+		// For HTML files, use the crawler's text extractor for consistency
+		ext := strings.ToLower(filepath.Ext(file.Path))
+		if ext == ".html" || ext == ".htm" {
+			raw, readErr := os.ReadFile(file.Path)
+			if readErr == nil {
+				text = crawler.ExtractText(string(raw))
+			}
+		}
+
+		if len(strings.Fields(text)) < 10 {
+			skipped++
+			continue
+		}
+
+		result := d.Scan(text)
+		result.Path = file.Path
+		totalWords += result.WordCount
+		totalHits += len(result.Hits)
+
+		results = append(results, crawlResult{URL: file.Path, Result: result})
+	}
+
+	fmt.Fprintf(os.Stderr, "  %d files processed\n", len(files))
+
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].Result.Score > results[j].Result.Score
+	})
+
+	if jsonOut {
+		data, _ := json.MarshalIndent(results, "", "  ")
+		fmt.Println(string(data))
+		return nil
+	}
+
+	printCrawlReport(absTarget, results, len(files), skipped, totalWords, totalHits)
 	return nil
 }
