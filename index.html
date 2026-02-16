@@ -3,10 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>SlopSquid 🦑 - CLI Tool for Document AI Cleanup</title>
+        <title>SlopSquid - Detect AI Writing Patterns in Text</title>
         <meta
             name="description"
-            content="Deploy the tentacles! Batch process your docs with parallel AI detection to clean up artificial writing patterns. Keep your documentation authentic."
+            content="CLI tool for detecting AI writing patterns in text. Scans files and websites for words, phrases, and structures statistically overrepresented in LLM output."
         />
         <link rel="stylesheet" href="style.css" />
         <link rel="icon" href="squid.png" type="image/png" />
@@ -30,7 +30,7 @@
                     <a href="#features">Features</a>
                     <a href="#how-it-works">How it Works</a>
                     <a href="#install">Install</a>
-                    <a href="#github">GitHub</a>
+                    <a href="https://github.com/QRY91/slopsquid">GitHub</a>
                 </div>
             </div>
         </nav>
@@ -40,17 +40,17 @@
             <div class="hero-content">
                 <div class="hero-text">
                     <h1 class="hero-title">
-                        Deploy the <span class="gradient-text">Tentacles</span>
-                        <br />Clean Your Docs
+                        Detect AI <span class="gradient-text">Writing Patterns</span>
+                        <br />in Your Text
                     </h1>
                     <p class="hero-subtitle">
-                        CLI tool for detecting and cleaning AI artifacts in your
-                        documentation. Batch process with parallel "tentacles"
-                        to keep your voice authentic and your content polished.
+                        CLI tool that scans files and websites for words, phrases, and
+                        structural patterns statistically overrepresented in LLM output.
+                        Based on frequency data from 67 AI models.
                     </p>
                     <div class="hero-buttons">
                         <a href="#install" class="btn btn-primary">
-                            <span>Install CLI Tool</span>
+                            <span>Get Started</span>
                             <div class="btn-ripple"></div>
                         </a>
                         <a
@@ -61,10 +61,7 @@
                         </a>
                     </div>
                     <div class="hero-code">
-                        <code
-                            >$ slopsquid scan docs/ --threads=8
-                            --interactive</code
-                        >
+                        <code>$ slopsquid scan docs/ --json</code>
                     </div>
                 </div>
                 <div class="hero-visual">
@@ -87,60 +84,60 @@
         <!-- Features Section -->
         <section id="features" class="features">
             <div class="container">
-                <h2 class="section-title">Why Choose SlopSquid?</h2>
+                <h2 class="section-title">What SlopSquid Does</h2>
                 <div class="features-grid">
                     <div class="feature-card">
-                        <div class="feature-icon">🦑</div>
-                        <h3>Parallel Tentacles</h3>
+                        <div class="feature-icon">🔬</div>
+                        <h3>Research-Backed Detection</h3>
                         <p>
-                            Deploy multiple worker "tentacles" to process files
-                            simultaneously. Batch scan entire directory trees
-                            with configurable thread pools.
+                            Built on the Antislop paper (Paech et al., 2025) analyzing
+                            67 AI models. Every detection is weighted by how many models
+                            overuse that pattern.
                         </p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">🔍</div>
-                        <h3>AI Pattern Detection</h3>
+                        <h3>Three Detection Layers</h3>
                         <p>
-                            Identify corporate speak, buzzwords, and artificial
-                            writing patterns using advanced heuristic analysis
-                            and local AI models.
+                            45 banlist words, 27 trigram phrases, and 5 structural
+                            patterns — each with frequency ratios derived from real
+                            model analysis.
                         </p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">🏠</div>
-                        <h3>Local Processing</h3>
+                        <div class="feature-icon">🌐</div>
+                        <h3>Website Crawling</h3>
                         <p>
-                            All AI analysis happens offline using local models.
-                            No cloud APIs, no data transmission, complete
-                            privacy by design.
+                            Point it at a URL and get a full site report. Respects
+                            robots.txt, seeds from sitemap.xml, configurable depth
+                            and concurrency.
                         </p>
                     </div>
                     <div class="feature-card">
-                        <div class="feature-icon">🎯</div>
-                        <h3>Interactive Cleanup</h3>
+                        <div class="feature-icon">📊</div>
+                        <h3>Density Scoring</h3>
                         <p>
-                            Review each detection with confidence scoring.
-                            Accept, reject, or learn from corrections to improve
-                            future scans.
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🔗</div>
-                        <h3>QRY Integration</h3>
-                        <p>
-                            Seamlessly integrates with uroboro for decision
-                            logging and osmotic for awareness patterns. Part of
-                            the QRY ecosystem.
+                            Every file gets a 0-100 score based on weighted hits
+                            per 1000 words. Rated clean, moderate, or heavy for
+                            quick triage.
                         </p>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">📝</div>
                         <h3>Multi-Format Support</h3>
                         <p>
-                            Works with Markdown, HTML, plain text, and code
-                            comments. Perfect for documentation, README files,
-                            and content creation.
+                            Scans Markdown, HTML (tags stripped), plain text,
+                            reStructuredText, AsciiDoc, and XML. Handles text
+                            extraction automatically.
+                        </p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔧</div>
+                        <h3>JSON Output</h3>
+                        <p>
+                            Every command supports <code>--json</code> for integration
+                            with other tools, CI pipelines, or custom reporting
+                            workflows.
                         </p>
                     </div>
                 </div>
@@ -150,50 +147,47 @@
         <!-- How It Works Section -->
         <section id="how-it-works" class="how-it-works">
             <div class="container">
-                <h2 class="section-title">How the Tentacles Work</h2>
+                <h2 class="section-title">Three Commands</h2>
                 <div class="process-steps">
                     <div class="step">
                         <div class="step-number">1</div>
                         <div class="step-content">
-                            <h3>File Discovery</h3>
+                            <h3>scan</h3>
                             <p>
-                                Recursively scan directories, filter by
-                                patterns, or target specific files. Git
-                                integration for staged file processing.
+                                Detailed hit-by-hit analysis. Every detected pattern
+                                with line numbers, severity tags, and explanations
+                                from the Antislop dataset.
                             </p>
                             <div class="step-code">
-                                <code>slopsquid scan docs/ --recursive</code>
+                                <code>slopsquid scan README.md</code>
                             </div>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">2</div>
                         <div class="step-content">
-                            <h3>Deploy Tentacles</h3>
+                            <h3>score</h3>
                             <p>
-                                Multiple worker threads grab files in parallel
-                                and analyze content using local AI models with
-                                shared pattern detection.
+                                Quick density scores. One line per file showing
+                                score (0-100), rating, hit count, and word count
+                                for fast triage.
                             </p>
                             <div class="step-code">
-                                <code>--threads=8 --model=llama3.2:1b</code>
+                                <code>slopsquid score docs/*.md</code>
                             </div>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h3>Ink the Slop</h3>
+                            <h3>report</h3>
                             <p>
-                                Mark AI artifacts with confidence scoring.
-                                Interactive review, automated cleanup, or
-                                integration with your development workflow.
+                                Consolidated analysis for a website or directory.
+                                Per-page scores, aggregate stats, and the most
+                                frequent patterns across the corpus.
                             </p>
                             <div class="step-code">
-                                <code
-                                    >slopsquid clean --interactive
-                                    --confidence=0.8</code
-                                >
+                                <code>slopsquid report qry.zone</code>
                             </div>
                         </div>
                     </div>
@@ -204,68 +198,54 @@
         <!-- Demo Section -->
         <section id="demo" class="demo">
             <div class="container">
-                <h2 class="section-title">CLI Commands</h2>
+                <h2 class="section-title">Detection in Action</h2>
                 <div class="demo-container">
                     <div class="cli-examples">
                         <div class="cli-example">
                             <div class="cli-header">
-                                <span class="cli-title">Basic Scanning</span>
-                                <span class="cli-confidence low"
-                                    >Batch Processing</span
-                                >
+                                <span class="cli-title">Scan Output</span>
+                                <span class="cli-confidence high">Detailed</span>
                             </div>
                             <div class="cli-content">
                                 <code>
-                                    # Scan single file<br />
-                                    slopsquid scan README.md<br /><br />
-                                    # Parallel directory processing<br />
-                                    slopsquid scan docs/ --recursive
-                                    --threads=8<br /><br />
-                                    # Pre-commit integration<br />
-                                    slopsquid scan --git-staged
+                                    $ slopsquid scan test_doc.md<br /><br />
+                                    ! test_doc.md — score: 68/100 (heavy)<br />
+                                    &nbsp;&nbsp;[!!] line 3: "flickered" — 98.5% of 67 models<br />
+                                    &nbsp;&nbsp;[! ] line 7: "murmured" — 73.1% of 67 models<br />
+                                    &nbsp;&nbsp;[!!] line 15: "voice barely whisper" — trigram<br />
+                                    &nbsp;&nbsp;18 hits in 42 lines, 387 words
                                 </code>
                             </div>
                         </div>
 
                         <div class="cli-example">
                             <div class="cli-header">
-                                <span class="cli-title"
-                                    >Interactive Cleanup</span
-                                >
-                                <span class="cli-confidence medium"
-                                    >Smart Review</span
-                                >
+                                <span class="cli-title">Score Output</span>
+                                <span class="cli-confidence medium">Quick</span>
                             </div>
                             <div class="cli-content">
                                 <code>
-                                    # Interactive mode with confidence
-                                    filtering<br />
-                                    slopsquid clean docs/ --interactive
-                                    --confidence=0.8<br /><br />
-                                    # Auto-fix obvious patterns<br />
-                                    slopsquid clean docs/ --auto-fix --safe<br /><br />
-                                    # Preview changes only<br />
-                                    slopsquid clean docs/ --dry-run
+                                    $ slopsquid score *.md<br /><br />
+                                    ! 68.0&nbsp;&nbsp;heavy&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;18 hits&nbsp;&nbsp;&nbsp;&nbsp;387 words&nbsp;&nbsp;test_doc.md<br />
+                                    * 31.2&nbsp;&nbsp;moderate&nbsp;&nbsp;&nbsp;4 hits&nbsp;&nbsp;&nbsp;&nbsp;892 words&nbsp;&nbsp;post.md<br />
+                                    .&nbsp;&nbsp;8.5&nbsp;&nbsp;clean&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1 hits&nbsp;&nbsp;&nbsp;1204 words&nbsp;&nbsp;README.md
                                 </code>
                             </div>
                         </div>
 
                         <div class="cli-example">
                             <div class="cli-header">
-                                <span class="cli-title">QRY Integration</span>
-                                <span class="cli-confidence high"
-                                    >Ecosystem</span
-                                >
+                                <span class="cli-title">Site Report</span>
+                                <span class="cli-confidence low">Aggregate</span>
                             </div>
                             <div class="cli-content">
                                 <code>
-                                    # Log to uroboro for decision tracking<br />
-                                    slopsquid scan
-                                    --uroboro-project=doc-cleanup<br /><br />
-                                    # Stream insights to osmotic<br />
-                                    slopsquid scan --osmotic-feed<br /><br />
-                                    # Learn from corrections<br />
-                                    slopsquid train file.md
+                                    $ slopsquid report qry.zone<br /><br />
+                                    == SlopSquid Report ==<br />
+                                    &nbsp;&nbsp;&nbsp;Source: https://qry.zone<br />
+                                    &nbsp;&nbsp;&nbsp;Files scanned: 24 (3 skipped)<br />
+                                    &nbsp;&nbsp;&nbsp;Breakdown: 18 clean, 4 moderate, 2 heavy<br />
+                                    &nbsp;&nbsp;&nbsp;Average score: 14.2/100
                                 </code>
                             </div>
                         </div>
@@ -274,39 +254,41 @@
             </div>
         </section>
 
-        <!-- Use Cases Section -->
+        <!-- Detection Layers Section -->
         <section class="use-cases">
             <div class="container">
-                <h2 class="section-title">Perfect For</h2>
+                <h2 class="section-title">Three Detection Layers</h2>
                 <div class="use-cases-grid">
                     <div class="use-case">
-                        <h3>👨‍💻 Developers</h3>
+                        <h3>45 Banlist Words</h3>
                         <p>
-                            Clean up AI-assisted documentation, README files,
-                            and code comments. Pre-commit hooks for quality
-                            assurance.
+                            Words like "flickered", "gaze", "murmured" that appear
+                            at abnormal rates across LLM outputs. Weighted by how
+                            many of 67 models overuse them.
                         </p>
                     </div>
                     <div class="use-case">
-                        <h3>📝 Technical Writers</h3>
+                        <h3>27 Trigram Phrases</h3>
                         <p>
-                            Maintain authentic voice across documentation
-                            projects. Remove AI artifacts while preserving
-                            meaning.
+                            Three-word sequences like "voice barely whisper" and
+                            "took deep breath" that are signatures of AI-generated
+                            prose.
                         </p>
                     </div>
                     <div class="use-case">
-                        <h3>✨ Content Creators</h3>
+                        <h3>5 Structural Patterns</h3>
                         <p>
-                            Polish drafts and articles by removing artificial
-                            writing patterns. Keep your unique voice consistent.
+                            Sentence-level constructions like "not just X, but Y"
+                            and hedging phrases that AI models produce at 2-6x
+                            human rates.
                         </p>
                     </div>
                     <div class="use-case">
-                        <h3>🔧 QRY Users</h3>
+                        <h3>Weighted Scoring</h3>
                         <p>
-                            Integrate with uroboro, osmotic, and the broader QRY
-                            ecosystem for systematic content creation.
+                            Every detection carries a weight from the Antislop paper.
+                            A word used by 98% of models scores higher than one
+                            used by 25%.
                         </p>
                     </div>
                 </div>
@@ -316,33 +298,22 @@
         <!-- Installation Section -->
         <section id="install" class="install">
             <div class="container">
-                <h2 class="section-title">Deploy Your Own Tentacles</h2>
+                <h2 class="section-title">Get Started</h2>
                 <div class="install-content">
                     <div class="install-info">
-                        <h3>Coming Soon</h3>
+                        <h3>Build from Source</h3>
                         <p>
-                            SlopSquid CLI is in active development. The core
-                            architecture is complete and implementation is
-                            underway.
+                            SlopSquid is a single Go binary with no external
+                            dependencies. Pattern data is embedded at compile time.
                         </p>
                         <ul class="feature-list">
-                            <li>✅ Local-first AI processing</li>
-                            <li>✅ Batch parallel processing</li>
-                            <li>✅ QRY ecosystem integration</li>
-                            <li>🔧 Interactive cleanup interface</li>
-                            <li>🔧 Pattern learning system</li>
+                            <li>No cloud APIs or network calls for detection</li>
+                            <li>All pattern data embedded in the binary</li>
+                            <li>Website crawling respects robots.txt</li>
+                            <li>JSON output for CI/CD integration</li>
                         </ul>
                     </div>
                     <div class="install-commands">
-                        <div class="install-box">
-                            <h4>Install (Coming Soon)</h4>
-                            <div class="command-block">
-                                <code
-                                    >curl -sSL https://slopsquid.com/install |
-                                    bash</code
-                                >
-                            </div>
-                        </div>
                         <div class="install-box">
                             <h4>Build from Source</h4>
                             <div class="command-block">
@@ -354,6 +325,16 @@
                                 </code>
                             </div>
                         </div>
+                        <div class="install-box">
+                            <h4>Try It</h4>
+                            <div class="command-block">
+                                <code>
+                                    slopsquid scan README.md<br />
+                                    slopsquid score docs/*.md<br />
+                                    slopsquid report qry.zone
+                                </code>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="install-buttons">
@@ -361,14 +342,13 @@
                         href="https://github.com/QRY91/slopsquid"
                         class="btn btn-primary btn-large"
                     >
-                        <span>Star on GitHub</span>
-                        <small>Follow development progress</small>
+                        <span>View on GitHub</span>
                     </a>
                     <a
                         href="https://github.com/QRY91/slopsquid/releases"
                         class="btn btn-secondary"
                     >
-                        <span>View Releases</span>
+                        <span>Releases</span>
                     </a>
                 </div>
             </div>
@@ -385,20 +365,14 @@
                     <div class="footer-links">
                         <a href="https://github.com/QRY91/slopsquid">GitHub</a>
                         <a href="https://github.com/QRY91">QRY Ecosystem</a>
-                        <a href="#privacy">Privacy</a>
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <p>
-                        &copy; 2025 SlopSquid. Deploy the tentacles. Clean up
-                        the slop. Keep your voice authentic.
-                    </p>
                     <p>
                         Part of the
                         <a href="https://github.com/QRY91"
                             >QRY Tool Ecosystem</a
                         >
-                        - Privacy-first tools for systematic creators.
                     </p>
                 </div>
             </div>
