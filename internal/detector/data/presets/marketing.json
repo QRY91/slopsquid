@@ -1,0 +1,98 @@
+{
+  "name": "marketing",
+  "description": "Patterns overused in AI-generated marketing copy — landing pages, product descriptions, newsletters, social posts. The most recognizable AI slop domain because the patterns are so uniform.",
+  "words": [
+    {"word": "unlock", "pct_models": 70.0, "severity": "high", "note": "the single most AI-marketing word; almost never used by human copywriters"},
+    {"word": "supercharge", "pct_models": 65.0, "severity": "high"},
+    {"word": "revolutionize", "pct_models": 65.0, "severity": "high"},
+    {"word": "effortlessly", "pct_models": 60.0, "severity": "medium", "note": "nothing is effortless; this word erases the value proposition"},
+    {"word": "seamlessly", "pct_models": 55.0, "severity": "medium"},
+    {"word": "empower", "pct_models": 55.0, "severity": "medium"},
+    {"word": "elevate", "pct_models": 60.0, "severity": "medium"},
+    {"word": "streamline", "pct_models": 50.0, "severity": "medium"},
+    {"word": "harness", "pct_models": 50.0, "severity": "medium"},
+    {"word": "turbocharge", "pct_models": 60.0, "severity": "high"},
+    {"word": "skyrocket", "pct_models": 55.0, "severity": "medium"},
+    {"word": "unparalleled", "pct_models": 50.0, "severity": "medium"},
+    {"word": "game-changing", "pct_models": 55.0, "severity": "medium"},
+    {"word": "best-in-class", "pct_models": 50.0, "severity": "medium"},
+    {"word": "next-level", "pct_models": 55.0, "severity": "medium"},
+    {"word": "cutting-edge", "pct_models": 50.0, "severity": "medium"},
+    {"word": "world-class", "pct_models": 45.0, "severity": "low"},
+    {"word": "frictionless", "pct_models": 50.0, "severity": "medium"},
+    {"word": "bespoke", "pct_models": 45.0, "severity": "low", "note": "AI reach for 'custom' that sounds fancier"},
+    {"word": "curated", "pct_models": 50.0, "severity": "medium", "note": "everything is 'curated' in AI copy"}
+  ],
+  "trigrams": [
+    {"phrase": "take it to the next level", "pct_models": 60.0, "severity": "high"},
+    {"phrase": "stand out from the crowd", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "stay ahead of the curve", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "in today's fast-paced", "pct_models": 60.0, "severity": "high"},
+    {"phrase": "the power of", "pct_models": 50.0, "severity": "medium", "note": "as in 'unlock the power of' or 'harness the power of'"},
+    {"phrase": "look no further", "pct_models": 50.0, "severity": "medium"},
+    {"phrase": "are you tired of", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "say goodbye to", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "whether you're a", "pct_models": 50.0, "severity": "medium", "note": "'whether you're a beginner or expert' — AI inclusivity formula"},
+    {"phrase": "from start to finish", "pct_models": 40.0, "severity": "low"},
+    {"phrase": "the future of", "pct_models": 45.0, "severity": "low"},
+    {"phrase": "built for", "pct_models": 35.0, "severity": "low"}
+  ],
+  "patterns": [
+    {
+      "name": "imagine_world",
+      "description": "AI 'Imagine a world where' / 'What if you could' opener",
+      "severity": "high",
+      "overuse_ratio": 5.0,
+      "regex": "\\b(?:imagine\\s+(?:a\\s+world|being\\s+able|having|if\\s+you\\s+could)|what\\s+if\\s+you\\s+could|picture\\s+this)",
+      "note": "The AI marketing opener. Immediately signals generated copy."
+    },
+    {
+      "name": "ready_to_cta",
+      "description": "AI CTA formula: 'Ready to [verb]?'",
+      "severity": "medium",
+      "overuse_ratio": 4.5,
+      "regex": "\\bready\\s+to\\s+(?:take|unlock|transform|elevate|supercharge|streamline|get\\s+started|level\\s+up|make\\s+the\\s+switch)",
+      "note": "The universal AI call-to-action. Human copywriters are more specific."
+    },
+    {
+      "name": "not_just_product",
+      "description": "AI product elevation: '[product] isn't just X — it's Y'",
+      "severity": "medium",
+      "overuse_ratio": 4.0,
+      "regex": "\\b(?:isn'?t|is\\s+not)\\s+just\\s+(?:a(?:n)?|another)\\s+\\w[\\w\\s]{1,20}[,;—–-]\\s*(?:it'?s|we'?re)",
+      "note": "Everything AI sells is 'more than just a product.' Name the actual difference."
+    },
+    {
+      "name": "designed_for",
+      "description": "AI vague audience targeting: 'designed/built/made for [audience]'",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\b(?:designed|built|crafted|tailored|made)\\s+(?:specifically\\s+)?for\\s+(?:teams|businesses|professionals|creators|developers|entrepreneurs|you)",
+      "note": "Everyone says 'built for you.' Say what it actually does for them."
+    },
+    {
+      "name": "everything_you_need",
+      "description": "AI completeness claim: 'everything you need to [verb]'",
+      "severity": "medium",
+      "overuse_ratio": 4.0,
+      "regex": "\\beverything\\s+you\\s+need\\s+(?:to|in\\s+one\\s+place)",
+      "note": "Vague completeness claim. Specifics sell better."
+    },
+    {
+      "name": "trusted_by",
+      "description": "AI social proof formula: 'trusted by X+ [noun]'",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\btrusted\\s+by\\s+(?:\\d+[\\d,+]*|thousands|millions|hundreds)\\s*\\+?\\s*(?:of\\s+)?(?:teams|businesses|companies|users|customers|professionals|developers)",
+      "note": "Legitimate when true. AI generates these even without data."
+    },
+    {
+      "name": "exclamation_hype",
+      "description": "AI hype punctuation: excessive exclamation marks",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "!{2,}",
+      "note": "Multiple exclamation marks signal AI enthusiasm inflation."
+    }
+  ]
+}

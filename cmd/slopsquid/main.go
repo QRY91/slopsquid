@@ -16,12 +16,14 @@ import (
 )
 
 var (
-	version = "0.3.0"
+	version = "0.4.0"
 
 	// Global flags
 	verbose   bool
 	recursive bool
 	jsonOut   bool
+	presets   []string
+	presetDir string
 
 	// Report flags
 	reportDepth   int
@@ -88,6 +90,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "process directories recursively")
 	rootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "output as JSON")
+	rootCmd.PersistentFlags().StringSliceVar(&presets, "preset", nil, "load additional detection presets by name, file path, or .json file")
+	rootCmd.PersistentFlags().StringVar(&presetDir, "preset-dir", "", "directory to search for preset .json files by name")
 
 	reportCmd.Flags().IntVar(&reportDepth, "depth", 10, "maximum crawl depth (URLs only)")
 	reportCmd.Flags().IntVar(&reportMax, "max-pages", 200, "maximum pages to crawl (URLs only)")
@@ -96,11 +100,27 @@ func init() {
 
 	rootCmd.AddCommand(scanCmd)
 	rootCmd.AddCommand(scoreCmd)
+	rootCmd.AddCommand(presetsCmd)
 	rootCmd.AddCommand(reportCmd)
 }
 
+var presetsCmd = &cobra.Command{
+	Use:   "presets",
+	Short: "List available detection presets",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return runPresets()
+	},
+}
+
+func detectorOpts() detector.DetectorOptions {
+	return detector.DetectorOptions{
+		Presets:   presets,
+		PresetDir: presetDir,
+	}
+}
+
 func getDetectorAndFiles(targets []string) (*detector.Detector, []*scanner.FileInfo, error) {
-	d, err := detector.NewDetector()
+	d, err := detector.NewDetectorWithOptions(detectorOpts())
 	if err != nil {
 		return nil, nil, fmt.Errorf("initializing detector: %w", err)
 	}
@@ -236,6 +256,52 @@ func runScore(targets []string) error {
 	return nil
 }
 
+func runPresets() error {
+	fmt.Println("Built-in presets:")
+	names, err := detector.ListPresets()
+	if err != nil {
+		return err
+	}
+	for _, name := range names {
+		desc, _ := detector.PresetDescription(name)
+		fmt.Printf("  %-12s  %s\n", name, desc)
+	}
+
+	if presetDir != "" {
+		fmt.Printf("\nExternal presets (%s):\n", presetDir)
+		entries, err := os.ReadDir(presetDir)
+		if err != nil {
+			fmt.Printf("  (directory not found: %v)\n", err)
+			return nil
+		}
+		found := false
+		for _, e := range entries {
+			if !e.IsDir() && strings.HasSuffix(e.Name(), ".json") {
+				name := strings.TrimSuffix(e.Name(), ".json")
+				// Try to read description
+				data, readErr := os.ReadFile(filepath.Join(presetDir, e.Name()))
+				desc := ""
+				if readErr == nil {
+					var p detector.PresetData
+					if json.Unmarshal(data, &p) == nil {
+						desc = p.Description
+					}
+				}
+				fmt.Printf("  %-12s  %s\n", name, desc)
+				found = true
+			}
+		}
+		if !found {
+			fmt.Println("  (none)")
+		}
+	}
+
+	fmt.Printf("\nUsage: slopsquid scan --preset <name> [file...]\n")
+	fmt.Printf("       slopsquid scan --preset /path/to/custom.json [file...]\n")
+	fmt.Printf("       slopsquid scan --preset-dir ~/.config/slopsquid/presets --preset mypreset [file...]\n")
+	return nil
+}
+
 // isURL returns true if the target looks like a URL rather than a local path
 func isURL(target string) bool {
 	if strings.HasPrefix(target, "http://") || strings.HasPrefix(target, "https://") {
@@ -263,7 +329,7 @@ func runReportHTTP(rootURL string) error {
 		rootURL = "https://" + rootURL
 	}
 
-	d, err := detector.NewDetector()
+	d, err := detector.NewDetectorWithOptions(detectorOpts())
 	if err != nil {
 		return fmt.Errorf("initializing detector: %w", err)
 	}
@@ -329,7 +395,7 @@ func runReportHTTP(rootURL string) error {
 func runReportLocal(target string) error {
 	absTarget, _ := filepath.Abs(target)
 
-	d, err := detector.NewDetector()
+	d, err := detector.NewDetectorWithOptions(detectorOpts())
 	if err != nil {
 		return fmt.Errorf("initializing detector: %w", err)
 	}

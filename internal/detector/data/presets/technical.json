@@ -1,0 +1,127 @@
+{
+  "name": "technical",
+  "description": "Patterns overused in AI-generated technical and analytical writing — blog posts, documentation, essays. Complements the base creative-fiction banlist with domain-specific detections.",
+  "words": [
+    {"word": "crucial", "pct_models": 70.0, "severity": "medium", "note": "AI default intensifier in technical contexts"},
+    {"word": "pivotal", "pct_models": 60.0, "severity": "medium", "note": "AI reach for importance signaling"},
+    {"word": "nuanced", "pct_models": 55.0, "severity": "medium", "note": "AI tells you it's nuanced instead of showing nuance"},
+    {"word": "myriad", "pct_models": 50.0, "severity": "medium", "note": "almost never used in casual human technical writing"},
+    {"word": "multifaceted", "pct_models": 50.0, "severity": "medium"},
+    {"word": "interplay", "pct_models": 55.0, "severity": "medium", "note": "AI favorite for describing relationships between concepts"},
+    {"word": "bolster", "pct_models": 45.0, "severity": "low"},
+    {"word": "spearhead", "pct_models": 40.0, "severity": "low"},
+    {"word": "reimagine", "pct_models": 45.0, "severity": "medium"},
+    {"word": "crystallize", "pct_models": 40.0, "severity": "low"},
+    {"word": "distill", "pct_models": 35.0, "severity": "low", "note": "fine when literally distilling; slop when used metaphorically"},
+    {"word": "demystify", "pct_models": 50.0, "severity": "medium"},
+    {"word": "overarching", "pct_models": 45.0, "severity": "low"},
+    {"word": "actionable", "pct_models": 50.0, "severity": "medium", "note": "corporate-AI crossover slop"},
+    {"word": "granular", "pct_models": 40.0, "severity": "low"},
+    {"word": "harness", "pct_models": 45.0, "severity": "low", "note": "as verb: 'harness the power of'"},
+    {"word": "empower", "pct_models": 50.0, "severity": "medium"},
+    {"word": "resonate", "pct_models": 45.0, "severity": "low"},
+    {"word": "noteworthy", "pct_models": 40.0, "severity": "low"},
+    {"word": "undeniably", "pct_models": 45.0, "severity": "medium"},
+    {"word": "fundamentally", "pct_models": 40.0, "severity": "low", "note": "fine occasionally; slop when every other paragraph"},
+    {"word": "arguably", "pct_models": 35.0, "severity": "low", "note": "hedging — state the argument or don't"},
+    {"word": "underscores", "pct_models": 45.0, "severity": "low", "note": "as in 'this underscores the importance'"},
+    {"word": "dovetail", "pct_models": 40.0, "severity": "low"},
+    {"word": "ecosystem", "pct_models": 35.0, "severity": "low", "note": "fine for actual ecosystems; slop as metaphor for 'a bunch of tools'"}
+  ],
+  "trigrams": [
+    {"phrase": "at the end of the day", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "it goes without saying", "pct_models": 50.0, "severity": "medium", "note": "if it goes without saying, don't say it"},
+    {"phrase": "double-edged sword", "pct_models": 45.0, "severity": "medium"},
+    {"phrase": "tip of the iceberg", "pct_models": 40.0, "severity": "low"},
+    {"phrase": "the bigger picture", "pct_models": 40.0, "severity": "low"},
+    {"phrase": "food for thought", "pct_models": 45.0, "severity": "medium"},
+    {"phrase": "game changer", "pct_models": 50.0, "severity": "medium"},
+    {"phrase": "moves the needle", "pct_models": 45.0, "severity": "medium"},
+    {"phrase": "when it comes to", "pct_models": 40.0, "severity": "low"},
+    {"phrase": "deep dive", "pct_models": 55.0, "severity": "medium", "note": "the phrase itself has become AI slop"},
+    {"phrase": "the bottom line", "pct_models": 40.0, "severity": "low"},
+    {"phrase": "the elephant in the room", "pct_models": 45.0, "severity": "medium"}
+  ],
+  "patterns": [
+    {
+      "name": "lets_opener",
+      "description": "AI 'Let's [verb]' engagement openers",
+      "severity": "medium",
+      "overuse_ratio": 4.5,
+      "regex": "\\blet'?s\\s+(?:explore|dive\\s+(?:in|into)|unpack|break\\s+(?:this|it|that)\\s+down|take\\s+a\\s+(?:closer\\s+)?look|examine|consider|talk\\s+about)",
+      "note": "Performative invitation to the reader. Just make the point."
+    },
+    {
+      "name": "at_its_core",
+      "description": "AI 'at its core' / 'at the heart of' emphasis",
+      "severity": "low",
+      "overuse_ratio": 3.5,
+      "regex": "\\b(?:at\\s+(?:its|the)\\s+(?:core|heart)|at\\s+the\\s+heart\\s+of)",
+      "note": "Pseudo-profundity. Just state the thing."
+    },
+    {
+      "name": "key_takeaway",
+      "description": "AI summary signposting",
+      "severity": "medium",
+      "overuse_ratio": 4.0,
+      "regex": "\\b(?:(?:the\\s+)?key\\s+(?:takeaway|insight|point)\\s+(?:here\\s+)?is|here'?s\\s+(?:the\\s+)?(?:thing|key|takeaway|bottom\\s+line))",
+      "note": "The reader decides what's key. Show, don't signpost."
+    },
+    {
+      "name": "in_other_words",
+      "description": "AI over-explanation / restating",
+      "severity": "low",
+      "overuse_ratio": 2.5,
+      "regex": "\\b(?:in\\s+other\\s+words|put\\s+(?:simply|differently|another\\s+way)|to\\s+put\\s+it\\s+(?:simply|bluntly|differently))",
+      "note": "Say it right the first time. If you need 'in other words', the first attempt failed."
+    },
+    {
+      "name": "reminder_that",
+      "description": "AI 'it's a reminder that' moralizing",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "\\b(?:(?:it'?s|this\\s+is|serves?\\s+as)\\s+a\\s+(?:powerful\\s+|stark\\s+|good\\s+|important\\s+)?reminder\\s+(?:that|of))",
+      "note": "Moralizing. State the observation without the frame."
+    },
+    {
+      "name": "this_raises",
+      "description": "AI 'this raises/begs the question' signposting",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\bthis\\s+(?:raises|begs)\\s+(?:an\\s+(?:important|interesting|fundamental)\\s+)?(?:the\\s+)?question",
+      "note": "Just ask the question."
+    },
+    {
+      "name": "era_of",
+      "description": "AI temporal framing: 'in today's X' / 'in an era of'",
+      "severity": "medium",
+      "overuse_ratio": 4.0,
+      "regex": "\\b(?:in\\s+(?:today'?s|an\\s+era\\s+of|a\\s+world\\s+(?:where|of|dominated)))",
+      "note": "The reader knows what era they're in."
+    },
+    {
+      "name": "theres_something",
+      "description": "AI vague profundity: 'there's something [adj] about'",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "\\bthere'?s\\s+something\\s+(?:\\w+\\s+)?(?:about|to)\\s",
+      "note": "Name the thing. Don't gesture vaguely at it."
+    },
+    {
+      "name": "false_balance",
+      "description": "AI diplomatic both-sides equivocation",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "\\b(?:neither\\s+(?:approach|option|solution|method)\\s+is\\s+(?:universally|inherently|necessarily)|both\\s+(?:approaches|options|methods)\\s+have\\s+(?:their|some)\\s+(?:merits|strengths|advantages))",
+      "note": "Take a position. Equivocation is not nuance."
+    },
+    {
+      "name": "gets_interesting",
+      "description": "AI meta-commentary: 'this is where it gets interesting'",
+      "severity": "medium",
+      "overuse_ratio": 4.0,
+      "regex": "\\b(?:(?:this|that|here)\\s+is\\s+where\\s+(?:it|things)\\s+get(?:s)?\\s+(?:interesting|tricky|complicated|fun)|where\\s+things\\s+get\\s+(?:interesting|tricky))",
+      "note": "If it's interesting, the reader will notice. Don't announce it."
+    }
+  ]
+}

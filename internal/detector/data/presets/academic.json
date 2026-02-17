@@ -1,0 +1,90 @@
+{
+  "name": "academic",
+  "description": "Patterns overused in AI-generated academic and research writing — papers, essays, literature reviews. Catches hedging, passive authority, and structural filler that pads word count without adding substance.",
+  "words": [
+    {"word": "elucidate", "pct_models": 60.0, "severity": "medium", "note": "AI reach for formality; 'explain' or 'clarify' almost always works"},
+    {"word": "underscore", "pct_models": 50.0, "severity": "medium", "note": "as verb: 'this underscores the importance of'"},
+    {"word": "posit", "pct_models": 55.0, "severity": "medium", "note": "AI loves this as a formal synonym for 'suggest'"},
+    {"word": "juxtaposition", "pct_models": 50.0, "severity": "medium"},
+    {"word": "dichotomy", "pct_models": 45.0, "severity": "low"},
+    {"word": "exemplify", "pct_models": 45.0, "severity": "low"},
+    {"word": "delineate", "pct_models": 50.0, "severity": "medium"},
+    {"word": "salient", "pct_models": 55.0, "severity": "medium", "note": "almost never appears in human academic writing post-2000"},
+    {"word": "ubiquitous", "pct_models": 40.0, "severity": "low"},
+    {"word": "burgeoning", "pct_models": 55.0, "severity": "medium", "note": "AI favorite for 'growing field'"},
+    {"word": "proliferation", "pct_models": 45.0, "severity": "low"},
+    {"word": "necessitate", "pct_models": 50.0, "severity": "medium"},
+    {"word": "myriad", "pct_models": 50.0, "severity": "medium"},
+    {"word": "plethora", "pct_models": 55.0, "severity": "medium", "note": "almost always replaceable with 'many'"},
+    {"word": "aforementioned", "pct_models": 45.0, "severity": "low", "note": "just name the thing again"},
+    {"word": "pertinent", "pct_models": 40.0, "severity": "low"},
+    {"word": "multifaceted", "pct_models": 50.0, "severity": "medium"},
+    {"word": "indispensable", "pct_models": 45.0, "severity": "low"},
+    {"word": "paramount", "pct_models": 50.0, "severity": "medium"},
+    {"word": "endeavor", "pct_models": 45.0, "severity": "low"}
+  ],
+  "trigrams": [
+    {"phrase": "a growing body of", "pct_models": 60.0, "severity": "high", "note": "top AI academic tell — vague gesture at evidence"},
+    {"phrase": "further research is needed", "pct_models": 55.0, "severity": "medium", "note": "universal paper-padding sentence"},
+    {"phrase": "it is important to note", "pct_models": 60.0, "severity": "high"},
+    {"phrase": "in the context of", "pct_models": 50.0, "severity": "medium"},
+    {"phrase": "it is worth mentioning", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "it should be noted", "pct_models": 50.0, "severity": "medium"},
+    {"phrase": "the findings suggest", "pct_models": 45.0, "severity": "low"},
+    {"phrase": "plays a crucial role", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "sheds light on", "pct_models": 50.0, "severity": "medium"},
+    {"phrase": "paves the way", "pct_models": 50.0, "severity": "medium"},
+    {"phrase": "stands as a testament", "pct_models": 55.0, "severity": "medium"},
+    {"phrase": "serves as a foundation", "pct_models": 45.0, "severity": "low"}
+  ],
+  "patterns": [
+    {
+      "name": "passive_authority",
+      "description": "AI passive-voice authority: 'it can be observed/argued/seen that'",
+      "severity": "medium",
+      "overuse_ratio": 4.0,
+      "regex": "\\bit\\s+(?:can|could|may|might|should)\\s+be\\s+(?:observed|argued|seen|noted|said|stated|inferred|concluded|suggested|posited)\\s+that",
+      "note": "Observe it, argue it, or don't. The passive framing is a hedge."
+    },
+    {
+      "name": "this_study_aims",
+      "description": "AI meta-framing: 'this study/paper/analysis aims to'",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\bthis\\s+(?:study|paper|analysis|essay|research|investigation|review)\\s+(?:aims|seeks|attempts|endeavors)\\s+to",
+      "note": "Just do the thing. Don't announce what you're about to do."
+    },
+    {
+      "name": "implications_of",
+      "description": "AI implications padding: 'the implications of this are [adj]'",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "\\b(?:the\\s+)?implications\\s+(?:of\\s+this|are)\\s+(?:far-reaching|significant|profound|wide-ranging|manifold|considerable)",
+      "note": "Name the actual implications. Adjectives aren't arguments."
+    },
+    {
+      "name": "beyond_scope",
+      "description": "AI scope-hedging: 'beyond the scope of this'",
+      "severity": "low",
+      "overuse_ratio": 2.5,
+      "regex": "\\b(?:(?:is|are|falls?)\\s+)?beyond\\s+the\\s+scope\\s+of\\s+(?:this|the\\s+(?:current|present))",
+      "note": "Sometimes legitimate. Often a way to gesture at depth without providing it."
+    },
+    {
+      "name": "it_is_imperative",
+      "description": "AI urgency inflation: 'it is imperative/essential/vital that'",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "\\bit\\s+is\\s+(?:imperative|essential|vital|critical|crucial)\\s+(?:that|to\\s+(?:note|recognize|understand|acknowledge))",
+      "note": "If it's that important, the evidence should make the case. Not the adjective."
+    },
+    {
+      "name": "notwithstanding",
+      "description": "AI formal connectives: 'notwithstanding' / 'vis-à-vis' / 'insofar as'",
+      "severity": "low",
+      "overuse_ratio": 2.5,
+      "regex": "\\b(?:notwithstanding|vis-[àa]-vis|insofar\\s+as|inasmuch\\s+as|hitherto|heretofore|therein)",
+      "note": "Formal connectives that models reach for to sound scholarly. Usually replaceable with plain English."
+    }
+  ]
+}

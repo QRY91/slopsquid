@@ -4,6 +4,8 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -81,8 +83,33 @@ type compiledPattern struct {
 	regex *regexp.Regexp
 }
 
+// PresetData holds the combined words/trigrams/patterns from a preset file
+type PresetData struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Words       []WordEntry    `json:"words"`
+	Trigrams    []TrigramEntry `json:"trigrams"`
+	Patterns    []PatternEntry `json:"patterns"`
+}
+
+// DetectorOptions configures preset loading
+type DetectorOptions struct {
+	Presets   []string // Preset names or file paths
+	PresetDir string   // External directory to search for presets by name
+}
+
 // NewDetector creates a detector with embedded banlist data
 func NewDetector() (*Detector, error) {
+	return NewDetectorWithPresets(nil)
+}
+
+// NewDetectorWithPresets creates a detector with base data plus optional preset names
+func NewDetectorWithPresets(presets []string) (*Detector, error) {
+	return NewDetectorWithOptions(DetectorOptions{Presets: presets})
+}
+
+// NewDetectorWithOptions creates a detector with full configuration
+func NewDetectorWithOptions(opts DetectorOptions) (*Detector, error) {
 	d := &Detector{}
 
 	// Load word data
@@ -107,7 +134,7 @@ func NewDetector() (*Detector, error) {
 	}
 	d.trigrams = trigramData.Trigrams
 
-	// Load and compile pattern data
+	// Load and compile base pattern data
 	patternBytes, err := dataFS.ReadFile("data/patterns.json")
 	if err != nil {
 		return nil, fmt.Errorf("loading pattern data: %w", err)
@@ -120,14 +147,110 @@ func NewDetector() (*Detector, error) {
 	for _, p := range patternData.Patterns {
 		re, err := regexp.Compile("(?i)" + p.Regex)
 		if err != nil {
-			// Skip invalid patterns rather than failing
 			fmt.Printf("warning: skipping invalid pattern %q: %v\n", p.Name, err)
 			continue
 		}
 		d.patterns = append(d.patterns, compiledPattern{entry: p, regex: re})
 	}
 
+	// Load presets (additive)
+	for _, name := range opts.Presets {
+		if err := d.loadPreset(name, opts.PresetDir); err != nil {
+			return nil, fmt.Errorf("loading preset %q: %w", name, err)
+		}
+	}
+
 	return d, nil
+}
+
+// loadPreset resolves a preset name or path and adds its data to the detector.
+// Resolution order:
+//  1. If name contains / or ends in .json, treat as a file path
+//  2. If presetDir is set, look for <presetDir>/<name>.json
+//  3. Look for embedded preset data/presets/<name>.json
+func (d *Detector) loadPreset(name string, presetDir string) error {
+	presetBytes, err := resolvePreset(name, presetDir)
+	if err != nil {
+		return err
+	}
+
+	var preset PresetData
+	if err := json.Unmarshal(presetBytes, &preset); err != nil {
+		return fmt.Errorf("parsing preset %q: %w", name, err)
+	}
+
+	d.words = append(d.words, preset.Words...)
+	d.trigrams = append(d.trigrams, preset.Trigrams...)
+
+	for _, p := range preset.Patterns {
+		re, err := regexp.Compile("(?i)" + p.Regex)
+		if err != nil {
+			fmt.Printf("warning: skipping invalid preset pattern %q: %v\n", p.Name, err)
+			continue
+		}
+		d.patterns = append(d.patterns, compiledPattern{entry: p, regex: re})
+	}
+
+	return nil
+}
+
+func resolvePreset(name string, presetDir string) ([]byte, error) {
+	// 1. Direct file path
+	if strings.Contains(name, "/") || strings.HasSuffix(name, ".json") {
+		data, err := os.ReadFile(name)
+		if err != nil {
+			return nil, fmt.Errorf("reading preset file %q: %w", name, err)
+		}
+		return data, nil
+	}
+
+	// 2. External preset directory
+	if presetDir != "" {
+		extPath := filepath.Join(presetDir, name+".json")
+		if data, err := os.ReadFile(extPath); err == nil {
+			return data, nil
+		}
+	}
+
+	// 3. Embedded preset
+	embeddedPath := "data/presets/" + name + ".json"
+	data, err := dataFS.ReadFile(embeddedPath)
+	if err != nil {
+		if presetDir != "" {
+			return nil, fmt.Errorf("preset %q not found (checked %s and embedded data)", name, filepath.Join(presetDir, name+".json"))
+		}
+		return nil, fmt.Errorf("preset %q not found in embedded data", name)
+	}
+	return data, nil
+}
+
+// ListPresets returns the names of all available embedded presets
+func ListPresets() ([]string, error) {
+	entries, err := dataFS.ReadDir("data/presets")
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(e.Name(), ".json") {
+			names = append(names, strings.TrimSuffix(e.Name(), ".json"))
+		}
+	}
+	return names, nil
+}
+
+// PresetDescription returns the description of an embedded preset
+func PresetDescription(name string) (string, error) {
+	path := "data/presets/" + name + ".json"
+	data, err := dataFS.ReadFile(path)
+	if err != nil {
+		return "", err
+	}
+	var p PresetData
+	if err := json.Unmarshal(data, &p); err != nil {
+		return "", err
+	}
+	return p.Description, nil
 }
 
 // Scan analyzes text and returns slop hits with scoring
