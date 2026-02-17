@@ -7,8 +7,8 @@
       "description": "The 'It's not X, it's Y' construction family - 6.3x overrepresented",
       "severity": "high",
       "overuse_ratio": 6.3,
-      "regex": "\\b(?:(?:it'?s|that'?s)\\s+not\\s+|(?:this|that|it)\\s+(?:isn'?t|wasn'?t)\\s+)\\w[\\w\\s]{1,40}(?:[,;—–-]\\s*(?:it'?s|but|rather)\\s)",
-      "note": "One per article may be deliberate. Three means the model was driving."
+      "regex": "\\b(?:isn'?t|wasn'?t|(?:it'?s|that'?s)\\s+not)\\s+.{1,60}?[,;.—–-][\"']?\\s+(?:it'?s|but|rather)\\s",
+      "note": "Catches any subject (not just it/this/that), period-separated variants. One per article may be deliberate. Three means the model was driving."
     },
     {
       "name": "not_just_but",

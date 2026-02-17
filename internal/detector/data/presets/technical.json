@@ -122,6 +122,38 @@
       "overuse_ratio": 4.0,
       "regex": "\\b(?:(?:this|that|here)\\s+is\\s+where\\s+(?:it|things)\\s+get(?:s)?\\s+(?:interesting|tricky|complicated|fun)|where\\s+things\\s+get\\s+(?:interesting|tricky))",
       "note": "If it's interesting, the reader will notice. Don't announce it."
+    },
+    {
+      "name": "heading_whats_next",
+      "description": "AI default closing heading: 'What's next' / 'Where this goes' / 'Next steps'",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\b(?:what'?s\\s+next|where\\s+(?:this|it)\\s+goes|next\\s+steps|looking\\s+(?:ahead|forward))\\s*$",
+      "note": "Generic closing. Name the actual direction instead."
+    },
+    {
+      "name": "heading_what_this",
+      "description": "AI signpost heading: 'What this changes/means/tells us'",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\bwhat\\s+(?:this|it)\\s+(?:changes|means|tells\\s+us|looks\\s+like|implies)\\s*$",
+      "note": "Tell the reader what actually changed. Don't label the section 'changes.'"
+    },
+    {
+      "name": "heading_why_matters",
+      "description": "AI importance signpost: 'Why this/it matters'",
+      "severity": "medium",
+      "overuse_ratio": 3.5,
+      "regex": "\\bwhy\\s+(?:this|it)\\s+matters\\s*$",
+      "note": "If it matters, the content should make that clear without the heading announcing it."
+    },
+    {
+      "name": "heading_key_noun",
+      "description": "AI 'key takeaway/insight' heading pattern",
+      "severity": "low",
+      "overuse_ratio": 3.0,
+      "regex": "\\b(?:the\\s+)?key\\s+(?:takeaway|insight|finding|lesson)s?\\s*$",
+      "note": "Name the actual insight. 'The key insight' is a label, not a heading."
     }
   ]
 }
